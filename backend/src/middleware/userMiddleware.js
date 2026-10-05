@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const redisClient = require("../config/redis")
+const {handleError, HttpError} = require("../utils/httpError");
 
 const userMiddleware = async (req,res,next)=>{
 
@@ -8,33 +9,33 @@ const userMiddleware = async (req,res,next)=>{
         
         const {token} = req.cookies;
         if(!token)
-            throw new Error("Token is not present");
+            throw new HttpError(401, "Token is not present");
 
         const payload = jwt.verify(token,process.env.JWT_KEY);
 
         const {_id} = payload;
 
         if(!_id){
-            throw new Error("Invalid token");
+            throw new HttpError(401, "Invalid token");
         }
 
         const result = await User.findById(_id);
 
         if(!result){
-            throw new Error("User Doesn't Exist");
+            throw new HttpError(401, "User Doesn't Exist");
         }
 
         const IsBlocked = await redisClient.exists(`token:${token}`);
 
         if(IsBlocked)
-            throw new Error("Invalid Token");
+            throw new HttpError(401, "Invalid Token");
 
         req.result = result;
 
         next();
     }
     catch(err){
-        res.status(401).send("Error: "+ err.message)
+        handleError(res, err)
     }
 
 }

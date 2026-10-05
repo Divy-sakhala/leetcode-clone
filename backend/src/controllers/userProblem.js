@@ -3,6 +3,7 @@ const Problem = require("../models/problem");
 const User = require("../models/user");
 const Submission = require("../models/submission");
 const SolutionVideo = require("../models/solutionVideo")
+const {handleError} = require("../utils/httpError");
 
 const createProblem = async (req,res)=>{
    
@@ -32,7 +33,7 @@ const createProblem = async (req,res)=>{
 
        for(const test of testResult){
         if(test.status_id!=3){
-         return res.status(400).send("Reference solution failed the test cases");
+         return res.status(400).json({ message: "Reference solution failed the test cases" });
         }
        }
 
@@ -43,10 +44,10 @@ const createProblem = async (req,res)=>{
         problemCreator: req.result._id
       });
 
-      res.status(201).send("Problem Saved Successfully");
+      res.status(201).json({ message: "Problem Saved Successfully" });
     }
     catch(err){
-        res.status(400).send("Error: "+err);
+        handleError(res, err);
     }
 }
 
@@ -61,13 +62,13 @@ const updateProblem = async (req,res)=>{
   try{
 
      if(!id){
-      return res.status(400).send("Missing ID Field");
+      return res.status(400).json({ message: "Missing ID Field" });
      }
 
     const DsaProblem =  await Problem.findById(id);
     if(!DsaProblem)
     {
-      return res.status(404).send("Problem not found");
+      return res.status(404).json({ message: "Problem not found" });
     }
       
     for(const {language,completeCode} of referenceSolution){
@@ -89,7 +90,7 @@ const updateProblem = async (req,res)=>{
 
      for(const test of testResult){
       if(test.status_id!=3){
-       return res.status(400).send("Reference solution failed the test cases");
+       return res.status(400).json({ message: "Reference solution failed the test cases" });
       }
      }
 
@@ -100,7 +101,7 @@ const updateProblem = async (req,res)=>{
   res.status(200).send(newProblem);
   }
   catch(err){
-      res.status(500).send("Error: "+err);
+      handleError(res, err);
   }
 }
 
@@ -110,18 +111,18 @@ const deleteProblem = async(req,res)=>{
   try{
      
     if(!id)
-      return res.status(400).send("ID is Missing");
+      return res.status(400).json({ message: "ID is Missing" });
 
    const deletedProblem = await Problem.findByIdAndDelete(id);
 
    if(!deletedProblem)
-    return res.status(404).send("Problem is Missing");
+    return res.status(404).json({ message: "Problem is Missing" });
 
-   res.status(200).send("Successfully Deleted");
+   res.status(200).json({ message: "Successfully Deleted" });
   }
   catch(err){
      
-    res.status(500).send("Error: "+err);
+    handleError(res, err);
   }
 }
 
@@ -131,12 +132,12 @@ const getProblemById = async(req,res)=>{
   try{
      
     if(!id)
-      return res.status(400).send("ID is Missing");
+      return res.status(400).json({ message: "ID is Missing" });
 
     const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution ');
    
    if(!getProblem)
-    return res.status(404).send("Problem is Missing");
+    return res.status(404).json({ message: "Problem is Missing" });
 
    const videos = await SolutionVideo.findOne({problemId:id});
 
@@ -156,7 +157,7 @@ const getProblemById = async(req,res)=>{
 
   }
   catch(err){
-    res.status(500).send("Error: "+err);
+    handleError(res, err);
   }
 }
 
@@ -169,7 +170,7 @@ const getAllProblem = async(req,res)=>{
    res.status(200).send(getProblem);
   }
   catch(err){
-    res.status(500).send("Error: "+err);
+    handleError(res, err);
   }
 }
 
@@ -188,7 +189,7 @@ const solvedAllProblembyUser =  async(req,res)=>{
 
     }
     catch(err){
-      res.status(500).send("Server Error");
+      handleError(res, err);
     }
 }
 
@@ -205,7 +206,7 @@ const submittedProblem = async(req,res)=>{
 
   }
   catch(err){
-     res.status(500).send("Internal Server Error");
+     handleError(res, err);
   }
 }
 

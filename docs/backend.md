@@ -91,6 +91,22 @@ Uploads go straight from the browser to Cloudinary so the video never passes thr
 | POST | `/video/save` | admin | Save uploaded video metadata |
 | DELETE | `/video/delete/:problemId` | admin | Delete a problem's video |
 
+## Errors
+
+Every error response is JSON: `{ "message": "..." }`. Controllers pass errors to `handleError` (`utils/httpError.js`), which maps them to a status:
+
+| Error | Status |
+|---|---|
+| `HttpError(status, message)` thrown by our own code (validation, bad credentials, auth checks) | the given status |
+| Invalid or expired JWT | 401 |
+| Malformed id (Mongoose `CastError`) | 400 |
+| Mongoose validation error | 400 |
+| Duplicate key, e.g. an email that's already registered | 409 |
+| Malformed JSON body | 400 |
+| Anything else | 500, logged server-side with a generic message |
+
+Unknown routes return 404 `{ "message": "Route not found" }`.
+
 ## Environment variables
 
 See `backend/.env.example`.

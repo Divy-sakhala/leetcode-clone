@@ -2,6 +2,7 @@ const Problem = require("../models/problem");
 const Submission = require("../models/submission");
 const User = require("../models/user");
 const {getLanguageById,submitBatch,submitToken,summarizeResults} = require("../utils/problemUtility");
+const {handleError} = require("../utils/httpError");
 
 const submitCode = async (req,res)=>{
    
@@ -13,14 +14,14 @@ const submitCode = async (req,res)=>{
        let {code,language} = req.body;
 
       if(!userId||!code||!problemId||!language)
-        return res.status(400).send("Some field missing");
+        return res.status(400).json({ message: "Some field missing" });
       
       if(language==='cpp')
         language='c++'
 
        const problem =  await Problem.findById(problemId);
        if(!problem)
-        return res.status(404).send("Problem not found");
+        return res.status(404).json({ message: "Problem not found" });
     
     const submittedResult = await Submission.create({
           userId,
@@ -72,7 +73,7 @@ const submitCode = async (req,res)=>{
        
     }
     catch(err){
-      res.status(500).send("Internal Server Error "+ err);
+      handleError(res, err);
     }
 }
 
@@ -85,11 +86,11 @@ const runCode = async(req,res)=>{
       let {code,language} = req.body;
 
      if(!userId||!code||!problemId||!language)
-       return res.status(400).send("Some field missing");
+       return res.status(400).json({ message: "Some field missing" });
 
       const problem =  await Problem.findById(problemId);
       if(!problem)
-        return res.status(404).send("Problem not found");
+        return res.status(404).json({ message: "Problem not found" });
       if(language==='cpp')
         language='c++'
 
@@ -119,7 +120,7 @@ const runCode = async(req,res)=>{
       
    }
    catch(err){
-     res.status(500).send("Internal Server Error "+ err);
+     handleError(res, err);
    }
 }
 

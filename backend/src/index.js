@@ -10,6 +10,7 @@ const submitRouter = require("./routes/submit")
 const aiRouter = require("./routes/aiChatting")
 const videoRouter = require("./routes/videoCreator");
 const cors = require('cors')
+const {errorResponse, handleError} = require('./utils/httpError');
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -24,6 +25,14 @@ app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
 app.use("/video",videoRouter);
+
+app.use((req,res)=>{
+    errorResponse(res, 404, "Route not found");
+});
+
+app.use((err,req,res,next)=>{
+    handleError(res, err);
+});
 
 const initializeConnection = async ()=>{
     try{

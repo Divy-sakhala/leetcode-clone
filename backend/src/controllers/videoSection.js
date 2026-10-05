@@ -17,7 +17,7 @@ const generateUploadSignature = async (req, res) => {
     const userId = req.result._id;
     const problem = await Problem.findById(problemId);
     if (!problem) {
-      return res.status(404).json({ error: 'Problem not found' });
+      return res.status(404).json({ message: 'Problem not found' });
     }
 
     const timestamp = Math.round(new Date().getTime() / 1000);
@@ -44,7 +44,7 @@ const generateUploadSignature = async (req, res) => {
 
   } catch (error) {
     console.error('Error generating upload signature:', error);
-    res.status(500).json({ error: 'Failed to generate upload credentials' });
+    res.status(500).json({ message: 'Failed to generate upload credentials' });
   }
 };
 
@@ -65,7 +65,7 @@ const saveVideoMetadata = async (req, res) => {
     );
 
     if (!cloudinaryResource) {
-      return res.status(400).json({ error: 'Video not found on Cloudinary' });
+      return res.status(400).json({ message: 'Video not found on Cloudinary' });
     }
 
     const existingVideo = await SolutionVideo.findOne({
@@ -75,7 +75,7 @@ const saveVideoMetadata = async (req, res) => {
     });
 
     if (existingVideo) {
-      return res.status(409).json({ error: 'Video already exists' });
+      return res.status(409).json({ message: 'Video already exists' });
     }
 
     const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id,{resource_type: "video"})
@@ -101,7 +101,7 @@ const saveVideoMetadata = async (req, res) => {
 
   } catch (error) {
     console.error('Error saving video metadata:', error);
-    res.status(500).json({ error: 'Failed to save video metadata' });
+    res.status(500).json({ message: 'Failed to save video metadata' });
   }
 };
 
@@ -113,7 +113,7 @@ const deleteVideo = async (req, res) => {
     const video = await SolutionVideo.findOneAndDelete({problemId:problemId});
     
     if (!video) {
-      return res.status(404).json({ error: 'Video not found' });
+      return res.status(404).json({ message: 'Video not found' });
     }
 
     await cloudinary.uploader.destroy(video.cloudinaryPublicId, { resource_type: 'video' , invalidate: true });
@@ -122,7 +122,7 @@ const deleteVideo = async (req, res) => {
 
   } catch (error) {
     console.error('Error deleting video:', error);
-    res.status(500).json({ error: 'Failed to delete video' });
+    res.status(500).json({ message: 'Failed to delete video' });
   }
 };
 
