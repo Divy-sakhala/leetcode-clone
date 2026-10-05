@@ -30,11 +30,9 @@ const createProblem = async (req,res)=>{
 
        const testResult = await submitToken(resultToken);
 
-       console.log(testResult);
-
        for(const test of testResult){
         if(test.status_id!=3){
-         return res.status(400).send("Error Occured");
+         return res.status(400).send("Reference solution failed the test cases");
         }
        }
 
@@ -69,7 +67,7 @@ const updateProblem = async (req,res)=>{
     const DsaProblem =  await Problem.findById(id);
     if(!DsaProblem)
     {
-      return res.status(404).send("ID is not persent in server");
+      return res.status(404).send("Problem not found");
     }
       
     for(const {language,completeCode} of referenceSolution){
@@ -91,7 +89,7 @@ const updateProblem = async (req,res)=>{
 
      for(const test of testResult){
       if(test.status_id!=3){
-       return res.status(400).send("Error Occured");
+       return res.status(400).send("Reference solution failed the test cases");
       }
      }
 
@@ -168,9 +166,6 @@ const getAllProblem = async(req,res)=>{
      
     const getProblem = await Problem.find({}).select('_id title difficulty tags');
 
-   if(getProblem.length==0)
-    return res.status(404).send("Problem is Missing");
-
    res.status(200).send(getProblem);
   }
   catch(err){
@@ -206,9 +201,6 @@ const submittedProblem = async(req,res)=>{
 
    const ans = await Submission.find({userId,problemId});
   
-  if(ans.length==0)
-    res.status(200).send("No Submission is persent");
-
   res.status(200).send(ans);
 
   }

@@ -25,7 +25,7 @@ app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
 app.use("/video",videoRouter);
 
-const InitalizeConnection = async ()=>{
+const initializeConnection = async ()=>{
     try{
 
         await Promise.all([main(),redisClient.connect()]);
@@ -37,8 +37,8 @@ const InitalizeConnection = async ()=>{
 
     }
     catch(err){
-        console.log("Error: "+err);
+        console.error("Failed to start server:", err);
     }
 }
 
-InitalizeConnection();
+initializeConnection();

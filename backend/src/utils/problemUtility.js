@@ -1,5 +1,12 @@
 const axios = require('axios');
 
+const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com/submissions/batch';
+const POLL_INTERVAL_MS = 1000;
+const MAX_POLL_ATTEMPTS = 30;
+
+const STATUS_ACCEPTED = 3;
+const STATUS_WRONG_ANSWER = 4;
+
 const getLanguageById = (lang)=>{
 
     const language = {
@@ -8,14 +15,14 @@ const getLanguageById = (lang)=>{
         "javascript":63
     }
 
-    return language[lang.toLowerCase()];
+return language[lang.toLowerCase()];
 }
 
 const submitBatch = async (submissions)=>{
 
 const options = {
   method: 'POST',
-  url: 'https://judge0-ce.p.rapidapi.com/submissions/batch',
+  url: JUDGE0_URL,
   params: {
     base64_encoded: 'false'
   },
@@ -29,30 +36,17 @@ const options = {
   }
 };
 
-async function fetchData() {
-	try {
-		const response = await axios.request(options);
-		return response.data;
-	} catch (error) {
-		console.error(error);
-	}
+  const response = await axios.request(options);
+  return response.data;
 }
 
- return await fetchData();
+const waiting = (timer)=> new Promise((resolve)=> setTimeout(resolve, timer));
 
-}
-
-const waiting = async(timer)=>{
-  setTimeout(()=>{
-    return 1;
-  },timer);
-}
-
-const submitToken = async(resultToken)=>{
+const submitToken = async(resultToken, { interval = POLL_INTERVAL_MS, maxAttempts = MAX_POLL_ATTEMPTS } = {})=>{
 
 const options = {
   method: 'GET',
-  url: 'https://judge0-ce.p.rapidapi.com/submissions/batch',
+  url: JUDGE0_URL,
   params: {
     tokens: resultToken.join(","),
     base64_encoded: 'false',
@@ -64,27 +58,47 @@ const options = {
   }
 };
 
-async function fetchData() {
-	try {
-		const response = await axios.request(options);
-		return response.data;
-	} catch (error) {
-		console.error(error);
-	}
-}
+for(let attempt = 0; attempt < maxAttempts; attempt++){
 
- while(true){
-
- const result =  await fetchData();
+  const response = await axios.request(options);
+  const result = response.data;
 
   const IsResultObtained =  result.submissions.every((r)=>r.status_id>2);
 
   if(IsResultObtained)
     return result.submissions;
 
-  await waiting(1000);
+  await waiting(interval);
 }
 
+throw new Error("Timed out waiting for Judge0 results");
 }
 
-module.exports = {getLanguageById,submitBatch,submitToken};
+const summarizeResults = (testResult)=>{
+
+  let passed = 0;
+  let runtime = 0;
+  let memory = 0;
+  let status = 'accepted';
+  let errorMessage = null;
+
+  for(const test of testResult){
+    if(test.status_id==STATUS_ACCEPTED){
+      passed++;
+      runtime = runtime+parseFloat(test.time)
+      memory = Math.max(memory,test.memory);
+    }
+    else if(test.status_id==STATUS_WRONG_ANSWER){
+      if(status==='accepted')
+        status = 'wrong'
+    }
+    else{
+      status = 'error'
+      errorMessage = test.stderr || test.compile_output || test.status?.description || null
+    }
+  }
+
+  return {passed,runtime,memory,status,errorMessage};
+}
+
+module.exports = {getLanguageById,submitBatch,submitToken,waiting,summarizeResults};

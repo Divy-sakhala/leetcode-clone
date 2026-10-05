@@ -34,7 +34,7 @@ On startup the server connects to MongoDB and Redis in parallel and only starts 
 
 ## Auth
 
-- Register/login sign a JWT (`_id`, `emailId`, `role`, 1 hour expiry) and set it as a `token` cookie.
+- Register/login sign a JWT (`_id`, `emailId`, `role`, 1 hour expiry) and set it as an httpOnly `token` cookie.
 - `userMiddleware` verifies the token, loads the user, and rejects the token if it's in the Redis blocklist. The user ends up on `req.result`.
 - `adminMiddleware` does the same and also requires `role === 'admin'` in the token.
 - Logout writes `token:<jwt>` to Redis with the same expiry as the token, so a logged-out token can't be reused even though JWTs are stateless. Redis isn't used for anything else yet.
@@ -46,16 +46,16 @@ On startup the server connects to MongoDB and Redis in parallel and only starts 
 
 1. Map the language to a Judge0 id (`c++` 54, `java` 62, `javascript` 63).
 2. `submitBatch` sends one submission per test case and gets back tokens.
-3. `submitToken` polls the batch once a second until every result has `status_id > 2` (finished).
-4. The controller counts passed test cases (status 3) and records a verdict.
+3. `submitToken` polls the batch once a second until every result has `status_id > 2` (finished), giving up after 30 attempts.
+4. `summarizeResults` turns the results into a verdict: status 3 is a pass, 4 is a wrong answer, and anything else (compile error, runtime error, time limit) is an error.
 
 - **Run** (`/submission/run/:id`) uses the visible test cases and doesn't save anything.
-- **Submit** (`/submission/submit/:id`) uses the hidden test cases, stores a submission, and adds the problem to the user's `problemSolved`.
+- **Submit** (`/submission/submit/:id`) uses the hidden test cases, stores a submission, and adds the problem to the user's `problemSolved` if it was accepted.
 - **Creating or updating a problem** runs every reference solution against the visible test cases first and refuses to save if any of them fail. That catches broken test cases before users ever see them.
 
 ## AI tutor
 
-`POST /ai/chat` forwards the chat history to Gemini, with a system prompt that includes the current problem's title, description, examples and starter code, and restricts the model to helping with that problem. The model is `gemini-1.5-flash`.
+`POST /ai/chat` forwards the chat history to Gemini, with a system prompt that includes the current problem's title, description, examples and starter code, and restricts the model to helping with that problem. The model defaults to `gemini-2.5-flash` and can be changed with `GEMINI_MODEL`.
 
 ## Video solutions
 
@@ -102,5 +102,5 @@ See `backend/.env.example`.
 | `JWT_KEY` | Signing JWTs |
 | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASS` | Redis connection |
 | `JUDGE0_KEY` | RapidAPI key for Judge0 CE |
-| `GEMINI_KEY` | AI tutor |
+| `GEMINI_KEY`, `GEMINI_MODEL` | AI tutor (model is optional) |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Video uploads |

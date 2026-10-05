@@ -8,7 +8,7 @@ const userMiddleware = async (req,res,next)=>{
         
         const {token} = req.cookies;
         if(!token)
-            throw new Error("Token is not persent");
+            throw new Error("Token is not present");
 
         const payload = jwt.verify(token,process.env.JWT_KEY);
 
