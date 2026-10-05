@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>LeetCode Clone — Complete Project Guide</title>
+<style>
+@page { size: A4; margin: 15mm 13mm; }
+*{box-sizing:border-box}
+body{font:10.5pt/1.5 "Segoe UI",system-ui,sans-serif;color:#16181d;margin:0;background:#fff}
+h1{font-size:26pt;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:16pt;margin:30px 0 10px;padding-bottom:6px;border-bottom:3px solid #2b6cb0;color:#1a365d;page-break-after:avoid}
+h3{font-size:12.5pt;margin:20px 0 6px;color:#2b6cb0;page-break-after:avoid}
+h4{font-size:11pt;margin:14px 0 4px;color:#2d3748;page-break-after:avoid}
+p,li{orphans:3;widows:3}
+code{font-family:"Cascadia Mono",Consolas,monospace;font-size:9.2pt;background:#eef1f6;padding:1px 4px;border-radius:3px;color:#9b2c2c}
+pre{background:#1e2430;color:#e6edf3;padding:10px 12px;border-radius:6px;font-family:"Cascadia Mono",Consolas,monospace;
+    font-size:8.4pt;line-height:1.42;white-space:pre-wrap;word-break:break-word;page-break-inside:avoid;margin:8px 0}
+pre code{background:none;color:inherit;padding:0;font-size:inherit}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:9.2pt;page-break-inside:avoid}
+th{background:#2b6cb0;color:#fff;text-align:left;padding:6px 8px;font-weight:600}
+td{border:1px solid #cbd5e0;padding:5px 8px;vertical-align:top}
+tr:nth-child(even) td{background:#f7fafc}
+.note{background:#ebf8ff;border-left:4px solid #2b6cb0;padding:9px 13px;margin:10px 0;border-radius:0 4px 4px 0;page-break-inside:avoid}
+.warn{background:#fffaf0;border-left:4px solid #dd6b20;padding:9px 13px;margin:10px 0;border-radius:0 4px 4px 0;page-break-inside:avoid}
+.bug{background:#fff5f5;border-left:4px solid #c53030;padding:9px 13px;margin:10px 0;border-radius:0 4px 4px 0;page-break-inside:avoid}
+.ok{background:#f0fff4;border-left:4px solid #2f855a;padding:9px 13px;margin:10px 0;border-radius:0 4px 4px 0;page-break-inside:avoid}
+.qa{margin:12px 0;page-break-inside:avoid}
+.q{font-weight:700;color:#1a365d}
+.a{margin-top:3px}
+.file{background:#2d3748;color:#fff;display:inline-block;padding:3px 10px;border-radius:4px;
+     font-family:Consolas,monospace;font-size:9.5pt;margin:18px 0 4px}
+.cover{text-align:center;padding-top:65mm;page-break-after:always}
+.cover h1{font-size:34pt;color:#1a365d}
+.cover .sub{font-size:14pt;color:#4a5568;margin-top:10px}
+.cover .meta{margin-top:40px;font-size:10pt;color:#718096}
+.toc{page-break-after:always}
+.toc ol{line-height:1.85;font-size:10.5pt}
+.pb{page-break-before:always}
+ul,ol{padding-left:22px;margin:8px 0}
+li{margin:3px 0}
+.small{font-size:9.2pt;color:#4a5568}
+</style></head><body>
+
+<div class="cover">
+  <h1>LeetCode Clone</h1>
+  <div class="sub">Complete Line-by-Line Project Walkthrough<br>&amp; Interview Preparation Guide</div>
+  <div class="meta">
+    MERN Stack &middot; Express 5 &middot; React 19 &middot; MongoDB &middot; Redis &middot; Judge0 &middot; Gemini AI &middot; Cloudinary<br><br>
+    Project root: <code>FinalProject/14Dev/</code>
+  </div>
+</div>
+
+<div class="toc">
+<h2 style="margin-top:0">Table of Contents</h2>
+<ol>
+<li><b>The 60-Second Pitch</b> — what to say when they ask "tell me about your project"</li>
+<li><b>Architecture &amp; Data Flow</b> — how the six systems talk to each other</li>
+<li><b>Tech Stack</b> — every dependency and why it is there</li>
+<li><b>Running the Project</b> — commands and environment variables</li>
+<li><b>Backend, File by File</b> — entry, config, models, middleware, utils, controllers, routes</li>
+<li><b>Frontend, File by File</b> — bootstrap, Redux, pages, components</li>
+<li><b>End-to-End Flows</b> — signup, login, run, submit, video upload, AI chat</li>
+<li><b>Core Concepts Explained</b> — JWT, Redis blocklist, bcrypt, Judge0, Redux Toolkit, CORS</li>
+<li><b>Bugs, Gaps &amp; What You Would Improve</b> — the section that wins interviews</li>
+<li><b>Interview Q&amp;A</b> — 40 questions with model answers</li>
+<li><b>Last-Minute Cheat Sheet</b></li>
+</ol>
+</div>
+
+<h2 id="s1">1. The 60-Second Pitch</h2>
+<p>Memorise this. It is the first thing you will be asked.</p>
+<div class="note">
+<p><b>"I built a full-stack LeetCode clone — an online judge where users solve DSA problems in a browser code editor and get their code actually compiled and executed against hidden test cases."</b></p>
+<p>The frontend is <b>React 19 + Vite</b>, styled with <b>Tailwind + DaisyUI</b>, with <b>Monaco</b> (the editor that powers VS Code) as the code editor. Global auth state lives in <b>Redux Toolkit</b>.</p>
+<p>The backend is a stateless <b>Express 5 REST API</b>. It uses <b>two databases</b>: MongoDB via Mongoose for users, problems, submissions and video metadata; and Redis as a <b>JWT blocklist</b>, so that logout actually invalidates a token — which a stateless JWT cannot do on its own.</p>
+<p>Code execution is delegated to <b>Judge0</b> (via RapidAPI). I submit all hidden test cases as one <b>batch</b>, get back a list of tokens, then poll until every submission finishes, and aggregate the verdict, runtime and memory.</p>
+<p>There are two extra features: an <b>AI DSA tutor</b> built on <b>Google Gemini</b> with a tightly-scoped system prompt so it only discusses the current problem, and <b>editorial videos</b> uploaded straight from the browser to <b>Cloudinary</b> using a server-generated <b>signed upload</b>, so large video files never pass through my server.</p>
+<p>There is a role-based <b>admin panel</b> for creating, deleting and attaching videos to problems — and when an admin creates a problem, the server first runs the <b>reference solution</b> through Judge0 to prove the problem is actually solvable before saving it.</p>
+</div>
+<p class="small">That last point — validating reference solutions before saving — is the single most impressive line in this project. Say it out loud.</p>
+
+<h2 id="s2">2. Architecture &amp; Data Flow</h2>
+<pre><code>                   +--------------------------------------+
+                   |   React 19 + Vite  (localhost:5173)  |
+                   |   Redux Toolkit . Monaco . DaisyUI   |
+                   +------------------+-------------------+
+                                      | axios, withCredentials:true
+                                      | Cookie: token=&lt;JWT&gt;
+                                      v
+                   +--------------------------------------+
+                   |  Express 5 API   (localhost:3000)    |
+                   |  cors -> express.json -> cookieParser|
+                   +--------------------------------------+
+                   | /user        userAuth.js             |
+                   | /problem     problemCreator.js       |
+                   | /submission  submit.js               |
+                   | /ai          aiChatting.js           |
+                   | /video       videoCreator.js         |
+                   +--+------+--------+--------+-------+--+
+                      |      |        |        |       |
+          +-----------+      |        |        |       +-----------+
+          v                  v        v        v                   v
+   +------------+   +------------+ +--------+ +--------+ +-----------+
+   |  MongoDB   |   |   Redis    | | Judge0 | | Gemini | |Cloudinary |
+   |  Atlas     |   |   Cloud    | | CE     | | 1.5    | | (video)   |
+   |            |   |            | | (Rapid | | flash  | |           |
+   | users      |   | token:&lt;jwt&gt;| |  API)  | |        | | signed    |
+   | problems   |   | = "Blocked"| | compile| | AI     | | direct    |
+   | submissions|   | TTL = exp  | | + run  | | tutor  | | upload    |
+   | videos     |   |            | | code   | |        | |           |
+   +------------+   +------------+ +--------+ +--------+ +-----------+</code></pre>
+
+<h3>The three shapes of a request</h3>
+<table>
+<tr><th>Shape</th><th>Example</th><th>Path through the code</th></tr>
+<tr><td>Public</td><td><code>POST /user/register</code></td><td>route &rarr; controller &rarr; MongoDB</td></tr>
+<tr><td>Authenticated</td><td><code>GET /problem/getAllProblem</code></td><td>route &rarr; <code>userMiddleware</code> (verify JWT + check Redis blocklist + load user) &rarr; controller &rarr; MongoDB</td></tr>
+<tr><td>Admin-only</td><td><code>POST /problem/create</code></td><td>route &rarr; <code>adminMiddleware</code> (same + role check) &rarr; controller &rarr; Judge0 &rarr; MongoDB</td></tr>
+</table>
+
+<h3>Directory map</h3>
+<pre><code>14Dev/
+├── backend/
+│   ├── .env                       secrets (never committed)
+│   ├── package.json
+│   └── src/
+│       ├── index.js               app entry: middleware, routes, boot
+│       ├── config/
+│       │   ├── db.js              mongoose.connect()
+│       │   └── redis.js           redis createClient()
+│       ├── models/                Mongoose schemas
+│       │   ├── user.js
+│       │   ├── problem.js
+│       │   ├── submission.js
+│       │   └── solutionVideo.js
+│       ├── middleware/
+│       │   ├── userMiddleware.js  any logged-in user
+│       │   └── adminMiddleware.js logged-in AND role=admin
+│       ├── utils/
+│       │   ├── validator.js       signup field validation
+│       │   └── problemUtility.js  Judge0 batch submit + poll
+│       ├── controllers/
+│       │   ├── userAuthent.js     register/login/logout/admin/delete
+│       │   ├── userProblem.js     problem CRUD + listings
+│       │   ├── userSubmission.js  run + submit code
+│       │   ├── solveDoubt.js      Gemini AI tutor
+│       │   └── videoSection.js    Cloudinary signature/save/delete
+│       └── routes/                URL -> middleware -> controller wiring
+│           ├── userAuth.js  problemCreator.js  submit.js
+│           └── aiChatting.js  videoCreator.js
+└── frontend/
+    ├── index.html  vite.config.js  package.json
+    └── src/
+        ├── main.jsx               React root + Provider + BrowserRouter
+        ├── App.jsx                routes + auth guards
+        ├── authSlice.js           Redux slice + async thunks
+        ├── store/store.js         configureStore
+        ├── utils/axiosClient.js   preconfigured axios instance
+        ├── pages/
+        │   ├── Signup.jsx  Login.jsx  Homepage.jsx
+        │   ├── ProblemPage.jsx     the main IDE screen
+        │   └── Admin.jsx
+        └── components/
+            ├── AdminPanel.jsx  AdminDelete.jsx
+            ├── AdminVideo.jsx  AdminUpload.jsx
+            ├── ChatAi.jsx  Editorial.jsx  SubmissionHistory.jsx</code></pre>
+
+<h2 id="s3">3. Tech Stack — every dependency, and why</h2>
+<h3>Backend <code>package.json</code></h3>
+<table>
+<tr><th>Package</th><th>What it does here</th></tr>
+<tr><td><code>express</code> ^5.1</td><td>HTTP server and routing.</td></tr>
+<tr><td><code>mongoose</code> ^8.14</td><td>ODM for MongoDB — schemas, validation, refs, <code>populate()</code>, middleware hooks.</td></tr>
+<tr><td><code>redis</code> ^5.0</td><td>Client for the Redis Cloud token blocklist.</td></tr>
+<tr><td><code>bcrypt</code> ^5.1</td><td>One-way password hashing with a per-password salt (10 rounds).</td></tr>
+<tr><td><code>jsonwebtoken</code> ^9.0</td><td>Signs and verifies the auth token (HS256 with <code>JWT_KEY</code>).</td></tr>
+<tr><td><code>cookie-parser</code></td><td>Parses the <code>Cookie</code> header into <code>req.cookies.token</code>.</td></tr>
+<tr><td><code>cors</code></td><td>Allows the browser at :5173 to call the API at :3000 <i>with cookies</i>.</td></tr>
+<tr><td><code>dotenv</code></td><td>Loads <code>.env</code> secrets into <code>process.env</code>.</td></tr>
+<tr><td><code>validator</code></td><td><code>isEmail</code> and <code>isStrongPassword</code> checks in the signup validator.</td></tr>
+<tr><td><code>axios</code></td><td>Server-side HTTP calls to the Judge0 REST API.</td></tr>
+<tr><td><code>@google/genai</code></td><td>Gemini SDK for the AI tutor.</td></tr>
+<tr><td><code>cloudinary</code></td><td>Generates signed upload params, deletes videos, reads video metadata.</td></tr>
+</table>
+<p class="small"><code>"type": "commonjs"</code> — the backend uses <code>require()</code>, not <code>import</code>. The frontend uses <code>"type": "module"</code> and ESM imports. Know the difference; it is a common follow-up question.</p>
+
+<h3>Frontend <code>package.json</code></h3>
+<table>
+<tr><th>Package</th><th>What it does here</th></tr>
+<tr><td><code>react</code> / <code>react-dom</code> 19</td><td>UI library.</td></tr>
+<tr><td><code>vite</code> 6</td><td>Dev server (HMR over native ESM) and production bundler. Far faster than webpack/CRA.</td></tr>
+<tr><td><code>react-router</code> 7</td><td>Client-side routing. In v7 imports come from <code>"react-router"</code>, not <code>"react-router-dom"</code>.</td></tr>
+<tr><td><code>@reduxjs/toolkit</code> + <code>react-redux</code></td><td>Global auth state via <code>createSlice</code> and <code>createAsyncThunk</code>.</td></tr>
+<tr><td><code>react-hook-form</code></td><td>Uncontrolled forms — far fewer re-renders than one <code>useState</code> per field.</td></tr>
+<tr><td><code>zod</code> + <code>@hookform/resolvers</code></td><td>Declarative schema validation wired into React Hook Form.</td></tr>
+<tr><td><code>@monaco-editor/react</code></td><td>The VS Code editor embedded in the browser.</td></tr>
+<tr><td><code>tailwindcss</code> 4 + <code>daisyui</code> 5</td><td>Utility CSS plus prebuilt component classes (<code>btn</code>, <code>card</code>, <code>badge</code>).</td></tr>
+<tr><td><code>axios</code></td><td>HTTP client, configured once in <code>axiosClient.js</code>.</td></tr>
+<tr><td><code>lucide-react</code></td><td>Icon set (Play, Pause, Send, Trash2).</td></tr>
+</table>
+
+<h2 id="s4">4. Running the Project</h2>
+<pre><code># Terminal 1 - backend
+cd FinalProject/14Dev/backend
+npm install
+node src/index.js      # -> "DB Connected" then "Server listening at port number: 3000"
+
+# Terminal 2 - frontend
+cd FinalProject/14Dev/frontend
+npm install
+npm run dev            # -> http://localhost:5173</code></pre>
+<div class="warn"><b>Note:</b> the backend <code>package.json</code> has <b>no start script</b>, so <code>npm start</code> fails — you run <code>node src/index.js</code>. If asked, say you would add <code>"start": "node src/index.js"</code> and <code>nodemon</code> for development.</div>
+
+<h3>Environment variables (<code>backend/.env</code>)</h3>
+<table>
+<tr><th>Variable</th><th>Purpose</th></tr>
+<tr><td><code>PORT</code></td><td>Port Express listens on (3000).</td></tr>
+<tr><td><code>DB_CONNECT_STRING</code></td><td>MongoDB Atlas connection URI.</td></tr>
+<tr><td><code>JWT_KEY</code></td><td>Secret used to sign and verify JWTs.</td></tr>
+<tr><td><code>REDIS_PASS</code></td><td>Redis Cloud password.</td></tr>
+<tr><td><code>JUDGE0_KEY</code></td><td>RapidAPI key for Judge0 CE.</td></tr>
+<tr><td><code>GEMINI_KEY</code></td><td>Google Gemini API key.</td></tr>
+<tr><td><code>CLOUDINARY_CLOUD_NAME</code>, <code>_API_KEY</code>, <code>_API_SECRET</code></td><td>Cloudinary credentials. The <b>secret never leaves the server</b> — it only signs upload parameters.</td></tr>
+</table>
+<h2 id="s5" class="pb">5. Backend, File by File</h2>
+
+<div class="file">backend/src/index.js — the entry point</div>
+<pre><code>const express = require('express')
+const app = express();
+require('dotenv').config();</code></pre>
+<p><code>dotenv.config()</code> reads <code>.env</code> and injects every key into <code>process.env</code>. It must run <b>before</b> anything reads a secret.</p>
+<div class="warn"><b>Subtle ordering bug worth knowing:</b> <code>require('./config/redis')</code> happens a few lines later, and that file reads <code>process.env.REDIS_PASS</code> <i>at module load time</i>. It works here only because <code>dotenv.config()</code> runs first. If you moved the requires above it, Redis auth would silently break. Good "gotcha" answer.</p>
+
+<pre><code>const main          = require('./config/db')
+const cookieParser  = require('cookie-parser');
+const authRouter    = require("./routes/userAuth");
+const redisClient   = require('./config/redis');
+const problemRouter = require("./routes/problemCreator");
+const submitRouter  = require("./routes/submit")
+const aiRouter      = require("./routes/aiChatting")
+const videoRouter   = require("./routes/videoCreator");
+const cors          = require('cors')</code></pre>
+<p>All five routers and both DB connectors are imported up front.</p>
+
+<h4>The middleware chain — order matters</h4>
+<pre><code>app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
+app.use(express.json());
+app.use(cookieParser());</code></pre>
+<ul>
+<li><b><code>cors</code></b> — the browser blocks cross-origin requests by default (5173 to 3000 is cross-origin because the <i>port</i> differs). <code>origin</code> whitelists the Vite dev server. <code>credentials: true</code> makes the server send <code>Access-Control-Allow-Credentials: true</code>, without which the browser <b>refuses to attach the cookie</b>. This must pair with <code>withCredentials: true</code> on the axios side — both halves are required.</li>
+<li><b><code>express.json()</code></b> — parses a JSON request body into <code>req.body</code>. Without it, <code>req.body</code> is <code>undefined</code>.</li>
+<li><b><code>cookieParser()</code></b> — parses the <code>Cookie</code> header into the <code>req.cookies</code> object, which every auth middleware reads.</li>
+</ul>
+
+<h4>Mounting the routers</h4>
+<pre><code>app.use('/user',       authRouter);
+app.use('/problem',    problemRouter);
+app.use('/submission', submitRouter);
+app.use('/ai',         aiRouter);
+app.use("/video",      videoRouter);</code></pre>
+<p>These are <b>URL prefixes</b>. A route defined as <code>authRouter.post('/login')</code> is reachable at <code>POST /user/login</code>. This keeps <code>index.js</code> tiny and each router focused.</p>
+
+<h4>Boot sequence</h4>
+<pre><code>const InitalizeConnection = async ()=&gt;{
+    try{
+        await Promise.all([ main(), redisClient.connect() ]);
+        console.log("DB Connected");
+        app.listen(process.env.PORT, ()=&gt;{
+            console.log("Server listening at port number: "+ process.env.PORT);
+        })
+    }
+    catch(err){ console.log("Error: "+err); }
+}
+InitalizeConnection();</code></pre>
+<div class="ok"><b>Why this is good design (say this in the interview):</b> the server does <b>not</b> start listening until <i>both</i> MongoDB and Redis are connected. <code>Promise.all</code> connects them <b>in parallel</b> rather than sequentially — roughly halving startup time — and rejects immediately if either fails. This prevents the server from accepting traffic it cannot serve.</p></div>
+
+<div class="file">backend/src/config/db.js</div>
+<pre><code>const mongoose = require('mongoose');
+async function main() {
+    await mongoose.connect(process.env.DB_CONNECT_STRING)
+}
+module.exports = main;</code></pre>
+<p>One job: open the Mongoose connection pool to MongoDB Atlas. Mongoose keeps a global connection, so every model file can just <code>require('mongoose')</code> and use it — no need to pass a connection object around.</p>
+
+<div class="file">backend/src/config/redis.js</div>
+<pre><code>const { createClient } = require('redis');
+const redisClient = createClient({
+    username: 'default',
+    password: process.env.REDIS_PASS,
+    socket: {
+        host: 'redis-19934.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 19934
+    }
+});
+module.exports = redisClient;</code></pre>
+<p>Creates (but does not connect) the client; <code>index.js</code> calls <code>.connect()</code>. Because Node caches modules, every file that requires this gets the <b>same singleton client</b> — one TCP connection, shared.</p>
+<div class="warn">The host and port are <b>hardcoded</b>. Only the password is in <code>.env</code>. In a real deployment you would use a single <code>REDIS_URL</code> env var so you can point at a local Redis in dev and a managed one in prod.</div>
+
+<h3 class="pb">5.1 Models — the MongoDB schemas</h3>
+
+<div class="file">models/user.js</div>
+<pre><code>const userSchema = new Schema({
+    firstName: { type:String, required:true, minLength:3, maxLength:20 },
+    lastName:  { type:String, minLength:3, maxLength:20 },
+    emailId:   { type:String, required:true, unique:true,
+                 trim:true, lowercase:true, immutable:true },
+    age:       { type:Number, min:6, max:80 },
+    role:      { type:String, enum:['user','admin'], default:'user' },
+    problemSolved: {
+        type: [{ type: Schema.Types.ObjectId, ref:'problem', unique:true }]
+    },
+    password:  { type:String, required:true }
+},{ timestamps:true });</code></pre>
+<table>
+<tr><th>Option</th><th>Meaning</th></tr>
+<tr><td><code>required</code></td><td>Mongoose rejects the save if missing.</td></tr>
+<tr><td><code>unique: true</code></td><td>Not a validator — it tells MongoDB to build a <b>unique index</b>. Duplicate email throws error code <code>E11000</code>.</td></tr>
+<tr><td><code>trim</code>, <code>lowercase</code></td><td>Normalises the email before saving, so <code>"  A@B.com "</code> and <code>"a@b.com"</code> are the same user.</td></tr>
+<tr><td><code>immutable: true</code></td><td>The email can never be changed after creation.</td></tr>
+<tr><td><code>enum</code></td><td>Value must be one of the listed strings — how role-based access is enforced at the data layer.</td></tr>
+<tr><td><code>ref: 'problem'</code></td><td>Declares a <b>relationship</b>. Stores only the ObjectId, but lets you call <code>.populate()</code> to fetch the full problem document — MongoDB's equivalent of a JOIN, done in the application layer.</td></tr>
+<tr><td><code>{ timestamps:true }</code></td><td>Mongoose auto-adds and maintains <code>createdAt</code> and <code>updatedAt</code>.</td></tr>
+</table>
+
+<h4>The cascade-delete hook</h4>
+<pre><code>userSchema.post('findOneAndDelete', async function (userInfo) {
+    if (userInfo) {
+      await mongoose.model('submission').deleteMany({ userId: userInfo._id });
+    }
+});</code></pre>
+<p>This is <b>Mongoose middleware</b> (a "hook"). <code>post</code> means it runs <i>after</i> the delete succeeds. It cleans up every submission belonging to the deleted user — MongoDB has no foreign keys or <code>ON DELETE CASCADE</code>, so you implement cascade yourself.</p>
+<div class="note"><b>Key detail:</b> <code>User.findByIdAndDelete(id)</code> internally calls <code>findOneAndDelete</code>, so this hook <b>does</b> fire from <code>deleteProfile</code>. It would <b>not</b> fire from <code>deleteMany()</code> or <code>User.remove()</code>. Hooks are tied to the specific query method — a very common interview question.</div>
+<p class="small">Note also <code>mongoose.model('submission')</code> is used instead of <code>require('../models/submission')</code> — this deliberately avoids a <b>circular import</b> between the two model files.</p>
+
+<div class="file">models/problem.js</div>
+<pre><code>const problemSchema = new Schema({
+    title:       { type:String, required:true },
+    description: { type:String, required:true },
+    difficulty:  { type:String, enum:['easy','medium','hard'], required:true },
+    tags:        { type:String, enum:['array','linkedList','graph','dp'], required:true },
+
+    visibleTestCases: [{ input:String, output:String, explanation:String }],   // all required
+    hiddenTestCases:  [{ input:String, output:String }],                       // all required
+
+    startCode:         [{ language:String, initialCode:String  }],
+    referenceSolution: [{ language:String, completeCode:String }],
+
+    problemCreator: { type: Schema.Types.ObjectId, ref:'user', required:true }
+})</code></pre>
+<p>This is the heart of the domain model. The two-tier test-case design is the important idea:</p>
+<table>
+<tr><th>Field</th><th>Role</th></tr>
+<tr><td><code>visibleTestCases</code></td><td>Shown to the user as "Examples" and used by the <b>Run</b> button. Includes an <code>explanation</code>.</td></tr>
+<tr><td><code>hiddenTestCases</code></td><td>Never sent to the browser. Used only by <b>Submit</b>. This is what stops users hardcoding outputs.</td></tr>
+<tr><td><code>startCode</code></td><td>Boilerplate skeleton per language, preloaded into the Monaco editor.</td></tr>
+<tr><td><code>referenceSolution</code></td><td>A known-correct solution per language. Used on create/update to <b>validate the problem itself</b> against Judge0.</td></tr>
+</table>
+<div class="warn"><code>tags</code> is a <b>single String</b>, not an array, despite the plural name. One problem can only carry one tag. Real LeetCode uses an array. Mention this as a known limitation — it shows you can critique your own schema.</div>
+
+<div class="file">models/submission.js</div>
+<pre><code>const submissionSchema = new Schema({
+  userId:    { type: Schema.Types.ObjectId, ref:'user',    required:true },
+  problemId: { type: Schema.Types.ObjectId, ref:'problem', required:true },
+  code:      { type:String, required:true },
+  language:  { type:String, required:true, enum:['javascript','c++','java'] },
+  status:    { type:String, enum:['pending','accepted','wrong','error'], default:'pending' },
+  runtime:   { type:Number, default:0 },   // milliseconds
+  memory:    { type:Number, default:0 },   // kB
+  errorMessage:    { type:String, default:'' },
+  testCasesPassed: { type:Number, default:0 },
+  testCasesTotal:  { type:Number, default:0 }
+}, { timestamps:true });
+
+submissionSchema.index({ userId:1, problemId:1 });</code></pre>
+<div class="ok"><b>The compound index is a strong talking point.</b> <code>{userId:1, problemId:1}</code> creates a B-tree index over both fields (1 = ascending). The main query in the app is <code>Submission.find({userId, problemId})</code> for submission history. Without the index MongoDB does a <b>COLLSCAN</b> — reads every document. With it, an <b>IXSCAN</b> jumps straight to the matching range. Because of the <b>prefix rule</b>, this index also serves queries on <code>userId</code> alone, but <b>not</b> <code>problemId</code> alone.</div>
+<p><code>status: 'pending'</code> is the default because the submission row is written <b>before</b> Judge0 is called, then updated with the verdict. That way a submission is never lost if Judge0 times out.</p>
+
+<div class="file">models/solutionVideo.js</div>
+<pre><code>const videoSchema = new Schema({
+    problemId: { type:Schema.Types.ObjectId, ref:'problem', required:true },
+    userId:    { type:Schema.Types.ObjectId, ref:'user',    required:true },
+    cloudinaryPublicId: { type:String, required:true, unique:true },
+    secureUrl:    { type:String, required:true },
+    thumbnailUrl: { type:String },
+    duration:     { type:Number, required:true },
+},{ timestamps:true });</code></pre>
+<p>Only <b>metadata</b> lives in MongoDB. The video bytes live in Cloudinary. <code>cloudinaryPublicId</code> is the handle used to delete the asset later; <code>secureUrl</code> is the HTTPS URL the <code>&lt;video&gt;</code> tag plays.</p>
+
+<h3 class="pb">5.2 Middleware — the authentication gates</h3>
+
+<div class="file">middleware/userMiddleware.js</div>
+<pre><code>const userMiddleware = async (req,res,next)=&gt;{
+  try{
+    const {token} = req.cookies;
+    if(!token) throw new Error("Token is not persent");
+
+    const payload = jwt.verify(token, process.env.JWT_KEY);
+    const {_id} = payload;
+    if(!_id) throw new Error("Invalid token");
+
+    const result = await User.findById(_id);
+    if(!result) throw new Error("User Doesn't Exist");
+
+    const IsBlocked = await redisClient.exists(`token:${token}`);
+    if(IsBlocked) throw new Error("Invalid Token");
+
+    req.result = result;     // hand the user object to the controller
+    next();                  // pass control down the chain
+  }
+  catch(err){ res.status(401).send("Error: "+ err.message) }
+}</code></pre>
+<p>Five checks, in order — walk through them exactly like this if asked:</p>
+<ol>
+<li><b>Is a token present?</b> Read from the cookie (not an <code>Authorization</code> header).</li>
+<li><b><code>jwt.verify</code></b> — recomputes the HMAC signature with <code>JWT_KEY</code> and compares. This detects tampering <i>and</i> throws <code>TokenExpiredError</code> if <code>exp</code> has passed. This is the crypto step.</li>
+<li><b>Does the user still exist?</b> A valid token for a deleted account must be rejected.</li>
+<li><b>Is the token blocklisted?</b> <code>redisClient.exists('token:&lt;jwt&gt;')</code> — this is how <b>logout</b> works. An O(1) Redis lookup.</li>
+<li><b>Attach and continue.</b> <code>req.result = result</code> makes the full user document available to every downstream controller, which is why controllers can just write <code>req.result._id</code>.</li>
+</ol>
+<div class="note"><b>Why <code>next()</code> matters:</b> Express middleware is a chain. Calling <code>next()</code> passes control to the next handler. Not calling it (and not sending a response) hangs the request forever. Here, any failure throws, is caught, and returns <b>401 Unauthorized</b> — so <code>next()</code> is never reached on failure.</div>
+
+<div class="file">middleware/adminMiddleware.js</div>
+<p>Identical to <code>userMiddleware</code> with one extra line:</p>
+<pre><code>if(payload.role != 'admin') throw new Error("Invalid Token");</code></pre>
+<div class="bug"><b>Security flaw to flag proactively:</b> the role is read from <b>the JWT payload</b>, not from the freshly-loaded database document. The token is signed so a user cannot forge it — but if an admin is demoted to <code>user</code> in the database, their existing token still grants admin access for up to an hour. The correct check is <code>if (result.role !== 'admin')</code>, using the DB value that was just fetched. Saying this unprompted is very impressive.</div>
+<p class="small">Also note both files are ~90% identical — a reviewer will ask why you did not extract a shared <code>authenticate()</code> and compose <code>requireRole('admin')</code> on top. Have that answer ready: "duplication I would refactor into one middleware factory."</p>
+
+<h3 class="pb">5.3 Utils</h3>
+
+<div class="file">utils/validator.js</div>
+<pre><code>const validate = (data)=&gt;{
+   const mandatoryField = ['firstName',"emailId",'password'];
+   const IsAllowed = mandatoryField.every((k)=&gt; Object.keys(data).includes(k));
+   if(!IsAllowed) throw new Error("Some Field Missing");
+
+   if(!validator.isEmail(data.emailId))          throw new Error("Invalid Email");
+   if(!validator.isStrongPassword(data.password)) throw new Error("Week Password");
+}</code></pre>
+<p><code>.every()</code> returns true only if <b>all</b> mandatory keys are present. <code>isStrongPassword</code> defaults to: minimum 8 characters, at least 1 lowercase, 1 uppercase, 1 number and 1 symbol.</p>
+<div class="warn"><b>Front/back mismatch:</b> the frontend Zod schema only requires <code>min(8)</code>. So <code>"password"</code> passes the browser check and is then <b>rejected by the server</b>, and because the error is returned as a plain string the UI shows a generic message. This is a real UX bug in the project — good to mention.</div>
+
+<div class="file">utils/problemUtility.js — the Judge0 integration</div>
+<pre><code>const getLanguageById = (lang)=&gt;{
+    const language = { "c++":54, "java":62, "javascript":63 };
+    return language[lang.toLowerCase()];
+}</code></pre>
+<p>Judge0 identifies languages by numeric id. 54 = C++ (GCC 9.2), 62 = Java (OpenJDK 13), 63 = JavaScript (Node 12).</p>
+
+<h4>Step 1 — batch submit</h4>
+<pre><code>const submitBatch = async (submissions)=&gt;{
+  const options = {
+    method: 'POST',
+    url: 'https://judge0-ce.p.rapidapi.com/submissions/batch',
+    params: { base64_encoded: 'false' },
+    headers: {
+      'x-rapidapi-key':  process.env.JUDGE0_KEY,
+      'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
+      'Content-Type':    'application/json'
+    },
+    data: { submissions }
+  };
+  async function fetchData() {
+    try { const response = await axios.request(options); return response.data; }
+    catch (error) { console.error(error); }
+  }
+  return await fetchData();
+}</code></pre>
+<p>Sends an <b>array</b> of submissions in one HTTP call. Each element is <code>{ source_code, language_id, stdin, expected_output }</code>. Judge0 responds <b>immediately</b> with an array of <b>tokens</b> — it does not wait for execution. This is an <b>asynchronous job queue</b> pattern.</p>
+<pre><code>// response shape
+[ {"token":"db54881d-bcf5-4c7b-a2e3-d33fe7e25de7"},
+  {"token":"ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1"} ]</code></pre>
+<div class="ok"><b>Why batch?</b> A problem with 10 hidden test cases would otherwise be 10 separate HTTP round-trips. Batching makes it 1 submit + N polls, cutting latency and staying inside RapidAPI rate limits.</div>
+
+<h4>Step 2 — poll until finished</h4>
+<pre><code>const submitToken = async(resultToken)=&gt;{
+  const options = {
+    method: 'GET',
+    url: 'https://judge0-ce.p.rapidapi.com/submissions/batch',
+    params: { tokens: resultToken.join(","), base64_encoded:'false', fields:'*' },
+    headers: { 'x-rapidapi-key': process.env.JUDGE0_KEY,
+               'x-rapidapi-host':'judge0-ce.p.rapidapi.com' }
+  };
+  async function fetchData() { ... return response.data; }
+
+  while(true){
+    const result = await fetchData();
+    const IsResultObtained = result.submissions.every((r)=&gt; r.status_id &gt; 2);
+    if(IsResultObtained) return result.submissions;
+    await waiting(1000);
+  }
+}</code></pre>
+<p>Joins the tokens into a comma-separated string and polls. The exit condition is <code>status_id &gt; 2</code> for <b>every</b> submission.</p>
+<h4>Judge0 status codes — memorise this table</h4>
+<table>
+<tr><th>id</th><th>Meaning</th><th>Terminal?</th></tr>
+<tr><td>1</td><td>In Queue</td><td>no — keep polling</td></tr>
+<tr><td>2</td><td>Processing</td><td>no — keep polling</td></tr>
+<tr><td><b>3</b></td><td><b>Accepted</b> — output matched expected</td><td>yes</td></tr>
+<tr><td>4</td><td>Wrong Answer</td><td>yes</td></tr>
+<tr><td>5</td><td>Time Limit Exceeded</td><td>yes</td></tr>
+<tr><td>6</td><td>Compilation Error</td><td>yes</td></tr>
+<tr><td>7–12</td><td>Runtime Errors (SIGSEGV, SIGFPE, NZEC, …)</td><td>yes</td></tr>
+<tr><td>13</td><td>Internal Error</td><td>yes</td></tr>
+<tr><td>14</td><td>Exec Format Error</td><td>yes</td></tr>
+</table>
+<p>So <code>status_id &gt; 2</code> is a neat way of saying "finished, whatever the outcome", and <code>status_id === 3</code> means "this test case passed".</p>
+
+<div class="bug"><b>Real bug — the <code>waiting()</code> helper does nothing.</b>
+<pre><code>const waiting = async(timer)=&gt;{
+  setTimeout(()=&gt;{ return 1; }, timer);
+}</code></pre>
+<p><code>setTimeout</code> is not a Promise, and returning from inside its callback returns from <b>the callback</b>, not from <code>waiting</code>. So <code>waiting</code> resolves <b>immediately</b> and <code>await waiting(1000)</code> does not pause at all. The result is a <b>hot polling loop</b> that hammers Judge0 hundreds of times per second and can blow the RapidAPI quota.</p>
+<p><b>The fix — know this by heart:</b></p>
+<pre><code>const waiting = (timer) =&gt; new Promise(resolve =&gt; setTimeout(resolve, timer));</code></pre>
+<p>Because <code>await</code> only pauses for a <b>thenable</b>, you must wrap the callback API in a Promise. This is the single best bug to bring up unprompted — it proves you understand the event loop, not just syntax.</p></div>
+
+<h3 class="pb">5.4 Controllers</h3>
+
+<div class="file">controllers/userAuthent.js — register</div>
+<pre><code>const register = async (req,res)=&gt;{
+  try{
+    validate(req.body);
+    const {firstName, emailId, password} = req.body;
+
+    req.body.password = await bcrypt.hash(password, 10);
+    req.body.role = 'user';
+
+    const user = await User.create(req.body);
+    const token = jwt.sign({_id:user._id, emailId:emailId, role:'user'},
+                            process.env.JWT_KEY, {expiresIn: 60*60});
+    const reply = { firstName:user.firstName, emailId:user.emailId,
+                    _id:user._id, role:user.role };
+
+    res.cookie('token', token, {maxAge: 60*60*1000});
+    res.status(201).json({ user:reply, message:"Loggin Successfully" });
+  }
+  catch(err){ res.status(400).send("Error: "+err); }
+}</code></pre>
+<ol>
+<li><b><code>validate(req.body)</code></b> — throws on bad input, caught below as a 400.</li>
+<li><b><code>bcrypt.hash(password, 10)</code></b> — 10 is the <b>cost factor</b>: 2^10 = 1024 iterations. bcrypt generates a random <b>salt</b> and embeds it in the output, so two users with the same password get different hashes. It is deliberately <b>slow</b> to make brute-force expensive.</li>
+<li><b><code>req.body.role = 'user'</code></b> — hardcoded, so a user cannot POST <code>{"role":"admin"}</code> and escalate privileges. <span class="small">(This is a <b>mass-assignment</b> defence — name it.)</span></li>
+<li><b><code>jwt.sign</code></b> — payload contains <code>_id</code>, <code>emailId</code>, <code>role</code>. <code>expiresIn: 60*60</code> = 3600 <b>seconds</b> = 1 hour.</li>
+<li><b><code>reply</code></b> — hand-built response object so the <b>password hash is never sent to the browser</b>.</li>
+<li><b><code>res.cookie</code></b> — <code>maxAge</code> here is in <b>milliseconds</b> (3,600,000), matching the token's 1-hour life. Note the unit difference from <code>expiresIn</code>.</li>
+<li><b>201 Created</b> — correct status for "a resource was created".</li>
+</ol>
+<div class="bug"><b>Missing cookie flags.</b> The cookie should be
+<code>{ httpOnly:true, secure:true, sameSite:'strict' }</code>.
+Without <code>httpOnly</code>, any injected JavaScript can read <code>document.cookie</code> and steal the token (XSS). <code>secure</code> forces HTTPS-only transmission; <code>sameSite</code> mitigates CSRF. This is the most important security gap in the project — <b>volunteer it before they find it</b>.</div>
+
+<div class="file">userAuthent.js — login</div>
+<pre><code>const {emailId, password} = req.body;
+if(!emailId) throw new Error("Invalid Credentials");
+if(!password) throw new Error("Invalid Credentials");
+
+const user = await User.findOne({emailId});
+const match = await bcrypt.compare(password, user.password);
+if(!match) throw new Error("Invalid Credentials");
+// ... build reply, sign token, set cookie, 201</code></pre>
+<p><b><code>bcrypt.compare</code></b> re-hashes the supplied password using the salt embedded in the stored hash, then compares. You never decrypt a bcrypt hash — hashing is one-way by design.</p>
+<p>Note every failure message is the identical string <b>"Invalid Credentials"</b>. That is intentional: distinguishing "no such email" from "wrong password" leaks which emails are registered (<b>user enumeration</b>).</p>
+<div class="bug"><b>Bug:</b> there is no <code>if(!user)</code> check. If the email does not exist, <code>user</code> is <code>null</code> and <code>user.password</code> throws <code>TypeError: Cannot read properties of null</code>. The catch block masks it as a 401, so the behaviour looks right by accident — but the fix is an explicit null check before <code>bcrypt.compare</code>.</div>
+
+<div class="file">userAuthent.js — logout (the clever part)</div>
+<pre><code>const {token} = req.cookies;
+const payload = jwt.decode(token);
+
+await redisClient.set(`token:${token}`, 'Blocked');
+await redisClient.expireAt(`token:${token}`, payload.exp);
+
+res.cookie("token", null, {expires: new Date(Date.now())});
+res.send("Logged Out Succesfully");</code></pre>
+<div class="ok"><b>This is the best architectural idea in the project. Explain it like this:</b>
+<p>A JWT is <b>stateless</b> — the server does not store it, it just verifies the signature. That means you <b>cannot</b> "delete" a JWT server-side. Clearing the cookie only helps an honest browser; anyone who copied the token still has a valid one until it expires.</p>
+<p>So logout writes the token into a <b>Redis blocklist</b>, and <code>userMiddleware</code> checks that list on every request. Redis is used because the check happens on <b>every single request</b> and Redis is an in-memory O(1) key lookup — putting the blocklist in MongoDB would add a disk read to every request.</p>
+<p><b>And the elegant bit:</b> <code>expireAt(key, payload.exp)</code> sets the Redis TTL to <b>exactly the token's own expiry timestamp</b>. Once the JWT expires it would be rejected by <code>jwt.verify</code> anyway, so keeping it blocklisted is pointless — Redis evicts it automatically. The blocklist is <b>self-cleaning and bounded in size</b>. No cron job needed.</p></div>
+<p class="small">Note <code>jwt.decode</code> (not <code>verify</code>) is used here — it only reads the payload without checking the signature. Fine in this spot because <code>userMiddleware</code> already verified the token before the route ran.</p>
+
+<div class="file">userAuthent.js — adminRegister &amp; deleteProfile</div>
+<p><code>adminRegister</code> is nearly identical to <code>register</code>, except it does <b>not</b> force <code>role='user'</code> — the role comes from the request body, so <code>{"role":"admin"}</code> creates an admin. It is protected by <code>adminMiddleware</code>.</p>
+<div class="warn"><b>Chicken-and-egg problem:</b> the route to create an admin requires you to <i>already be</i> an admin. The very first admin has to be created by hand in MongoDB Compass, or by temporarily commenting out the middleware. Be honest about this if asked — the intended answer is a one-off seed script.</div>
+<pre><code>const deleteProfile = async(req,res)=&gt;{
+   const userId = req.result._id;
+   await User.findByIdAndDelete(userId);
+   res.status(200).send("Deleted Successfully");
+}</code></pre>
+<p>The explicit <code>Submission.deleteMany</code> is commented out because the <b>post-<code>findOneAndDelete</code> hook in the user model already does it</b>. The user id comes from <code>req.result</code> (the verified token), never from the request body, so one user cannot delete another.</p>
+
+<div class="file">controllers/userProblem.js — createProblem</div>
+<pre><code>for(const {language, completeCode} of referenceSolution){
+   const languageId = getLanguageById(language);
+
+   const submissions = visibleTestCases.map((testcase)=&gt;({
+       source_code: completeCode,
+       language_id: languageId,
+       stdin: testcase.input,
+       expected_output: testcase.output
+   }));
+
+   const submitResult = await submitBatch(submissions);
+   const resultToken  = submitResult.map((value)=&gt; value.token);
+   const testResult   = await submitToken(resultToken);
+
+   for(const test of testResult){
+      if(test.status_id != 3) return res.status(400).send("Error Occured");
+   }
+}
+
+const userProblem = await Problem.create({ ...req.body, problemCreator: req.result._id });
+res.status(201).send("Problem Saved Successfully");</code></pre>
+<div class="ok"><b>Say this out loud in the interview.</b> Before a problem is saved, the server takes the admin's <b>reference solution in every language</b>, runs it through Judge0 against <b>every visible test case</b>, and only saves the problem if <b>all of them return status 3 (Accepted)</b>. This guarantees you can never publish a broken or unsolvable problem — the expected outputs are proven correct by actual execution. It is a self-validating content pipeline.</div>
+<p><code>{ ...req.body, problemCreator: req.result._id }</code> — spread the body, then <b>override</b> the creator with the authenticated user's id, so a client cannot forge authorship.</p>
+
+<div class="file">userProblem.js — updateProblem / deleteProblem</div>
+<p><code>updateProblem</code> repeats the same Judge0 validation, then:</p>
+<pre><code>await Problem.findByIdAndUpdate(id, {...req.body}, { runValidators:true, new:true });</code></pre>
+<ul>
+<li><code>runValidators: true</code> — by default Mongoose <b>skips schema validators on updates</b>. This turns them back on. Without it you could write <code>difficulty:"impossible"</code> straight past the enum.</li>
+<li><code>new: true</code> — return the <b>updated</b> document instead of the pre-update one (the default).</li>
+</ul>
+<p><code>deleteProblem</code> is straightforward <code>findByIdAndDelete</code> with 400 for a missing id and 404 when the problem does not exist.</p>
+
+<div class="file">userProblem.js — the read endpoints</div>
+<pre><code>// getProblemById
+const getProblem = await Problem.findById(id)
+   .select('_id title description difficulty tags visibleTestCases startCode referenceSolution');
+
+const videos = await SolutionVideo.findOne({problemId:id});
+if(videos){
+   const responseData = { ...getProblem.toObject(),
+       secureUrl: videos.secureUrl, thumbnailUrl: videos.thumbnailUrl, duration: videos.duration };
+   return res.status(200).send(responseData);
+}
+res.status(200).send(getProblem);</code></pre>
+<ul>
+<li><b><code>.select(...)</code></b> is a <b>projection</b> — MongoDB returns only these fields. Critically, <code>hiddenTestCases</code> is <b>excluded</b>, so the answers never reach the browser. This is the security boundary of the whole judging system.</li>
+<li><b><code>.toObject()</code></b> converts the Mongoose Document (which has methods and getters) into a plain JS object so it can be spread with <code>...</code>. Spreading a Document directly would copy internal fields, not the data.</li>
+<li>Video fields are <b>merged in</b> so the frontend gets one object and the Editorial tab just works.</li>
+</ul>
+<div class="bug"><b>Leak:</b> <code>referenceSolution</code> <i>is</i> in the projection — so any logged-in user can open DevTools and read the full solution before solving. Real LeetCode gates this. The one-line fix is to drop it from <code>.select()</code> and serve it from a separate endpoint that first checks the user has an accepted submission.</div>
+<pre><code>// getAllProblem - list view, minimal fields
+const getProblem = await Problem.find({}).select('_id title difficulty tags');
+
+// solvedAllProblembyUser - uses populate to resolve the ObjectId array
+const user = await User.findById(userId).populate({
+    path: "problemSolved",
+    select: "_id title difficulty tags"
+});
+res.status(200).send(user.problemSolved);</code></pre>
+<p><b><code>.populate()</code></b> is Mongoose's application-level JOIN. <code>problemSolved</code> stores only ObjectIds; populate issues a second query to the <code>problems</code> collection and swaps each id for the real document (limited by <code>select</code> to four fields).</p>
+<div class="bug"><b>Bug in <code>submittedProblem</code>:</b>
+<pre><code>if(ans.length == 0) res.status(200).send("No Submission is persent");
+res.status(200).send(ans);   // &lt;-- runs anyway!</code></pre>
+There is no <code>return</code> on the first send, so when there are zero submissions Express tries to send <b>two responses</b> and throws <code>ERR_HTTP_HEADERS_SENT</code>. Also the two branches return different <b>types</b> (a string vs an array), which would break the frontend's <code>.map()</code>. The fix: <code>return res.status(200).send([])</code> — always return the same shape.</div>
+
+<div class="file">controllers/userSubmission.js — submitCode (the core feature)</div>
+<pre><code>const userId    = req.result._id;
+const problemId = req.params.id;
+let {code, language} = req.body;
+
+if(!userId||!code||!problemId||!language) return res.status(400).send("Some field missing");
+if(language === 'cpp') language = 'c++';        // frontend says "cpp", schema enum says "c++"
+
+const problem = await Problem.findById(problemId);
+
+// 1) Write the submission FIRST, as 'pending'
+const submittedResult = await Submission.create({
+      userId, problemId, code, language,
+      status:'pending',
+      testCasesTotal: problem.hiddenTestCases.length
+});</code></pre>
+<p><b>Why create before judging?</b> If Judge0 is slow or the process crashes, the attempt is already recorded. This is the same "write-ahead" idea as a job queue: persist intent, then do the slow work, then update.</p>
+<pre><code>// 2) Run against HIDDEN test cases
+const languageId  = getLanguageById(language);
+const submissions = problem.hiddenTestCases.map((testcase)=&gt;({
+    source_code: code, language_id: languageId,
+    stdin: testcase.input, expected_output: testcase.output
+}));
+const submitResult = await submitBatch(submissions);
+const resultToken  = submitResult.map(v =&gt; v.token);
+const testResult   = await submitToken(resultToken);
+
+// 3) Aggregate the verdict
+let testCasesPassed = 0, runtime = 0, memory = 0;
+let status = 'accepted', errorMessage = null;
+
+for(const test of testResult){
+    if(test.status_id == 3){
+       testCasesPassed++;
+       runtime = runtime + parseFloat(test.time);   // SUM of all test times
+       memory  = Math.max(memory, test.memory);     // PEAK memory
+    } else {
+       if(test.status_id == 4){ status='error'; errorMessage = test.stderr; }
+       else                   { status='wrong'; errorMessage = test.stderr; }
+    }
+}</code></pre>
+<p>Note the two different aggregations: runtime is <b>summed</b> across test cases, memory is the <b>maximum</b> (peak usage). Also note <code>status</code> starts optimistic at <code>'accepted'</code> and is only downgraded by a failure — a clean way to express "accepted means every case passed".</p>
+<div class="bug"><b>Inverted mapping:</b> Judge0 <code>status_id 4</code> is <b>Wrong Answer</b>, but the code labels it <code>'error'</code>; everything else (compilation error 6, TLE 5, runtime errors 7–12) is labelled <code>'wrong'</code>. The two branches are swapped. Correct version:
+<pre><code>if(test.status_id == 4){ status = 'wrong'; }   // Wrong Answer
+else                   { status = 'error'; }   // TLE / compile / runtime error</code></pre></div>
+<pre><code>// 4) Persist the verdict
+submittedResult.status          = status;
+submittedResult.testCasesPassed = testCasesPassed;
+submittedResult.errorMessage    = errorMessage;
+submittedResult.runtime         = runtime;
+submittedResult.memory          = memory;
+await submittedResult.save();
+
+// 5) Mark the problem solved
+if(!req.result.problemSolved.includes(problemId)){
+  req.result.problemSolved.push(problemId);
+  await req.result.save();
+}
+
+const accepted = (status == 'accepted');
+res.status(201).json({ accepted, totalTestCases: submittedResult.testCasesTotal,
+                       passedTestCases: testCasesPassed, runtime, memory });</code></pre>
+<div class="bug"><b>Significant logic bug:</b> step 5 is <b>outside</b> any check on <code>status</code>. A completely wrong submission still gets pushed into <code>problemSolved</code>, so the Homepage shows a green "Solved" badge for problems the user failed. The fix is to wrap it: <code>if (status === 'accepted' &amp;&amp; !req.result.problemSolved.includes(problemId))</code>. This is the bug most likely to be spotted in a live demo — know it cold.</div>
+<p class="small">Also worth knowing: <code>req.result</code> is a live Mongoose document, so <code>.push()</code> then <code>.save()</code> persists the change. And <code>.includes(problemId)</code> compares an ObjectId to a string — it works because Mongoose casts, but <code>.some(id =&gt; id.equals(problemId))</code> is the robust form.</p>
+
+<div class="file">userSubmission.js — runCode</div>
+<p>Three deliberate differences from <code>submitCode</code>:</p>
+<table>
+<tr><th></th><th>runCode</th><th>submitCode</th></tr>
+<tr><td>Test cases</td><td><code>visibleTestCases</code></td><td><code>hiddenTestCases</code></td></tr>
+<tr><td>Saves to DB?</td><td><b>No</b> — nothing persisted</td><td>Yes — a Submission document</td></tr>
+<tr><td>Response</td><td><code>{success, testCases[], runtime, memory}</code> — full per-case detail including stdout</td><td><code>{accepted, passed/total, runtime, memory}</code> — summary only</td></tr>
+</table>
+<p>Run returns the <b>whole</b> Judge0 result array so the UI can display Input / Expected / Actual per case. Submit deliberately does <b>not</b>, because those are the hidden cases.</p>
+
+<div class="file">controllers/solveDoubt.js — the AI tutor</div>
+<pre><code>const {messages, title, description, testCases, startCode} = req.body;
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_KEY });
+
+const response = await ai.models.generateContent({
+    model: "gemini-1.5-flash",
+    contents: messages,
+    config: { systemInstruction: `...long prompt...` }
+});
+res.status(201).json({ message: response.text });</code></pre>
+<p>Two distinct inputs to the model — this distinction is the whole point of the design:</p>
+<ul>
+<li><b><code>contents: messages</code></b> — the running conversation, an array of <code>{role:'user'|'model', parts:[{text}]}</code>. This is how the model gets <b>memory</b> of the chat: LLM APIs are stateless, so you resend the whole history every time.</li>
+<li><b><code>systemInstruction</code></b> — a template literal that <b>injects the current problem</b> (title, description, test cases, starter code) and then sets hard rules: act as a DSA tutor, give hints without spoiling, analyse complexity, and <b>refuse anything unrelated to this problem</b>.</li>
+</ul>
+<div class="ok"><b>Frame this as prompt engineering, not "I called an API".</b> You built a <b>context-aware, scope-limited</b> assistant: it always knows which problem the user is on, and the system prompt constrains it to DSA help so it cannot be used as a general chatbot. That is a product decision with a cost and safety rationale.</div>
+<div class="bug"><b>Bug:</b> the async <code>main()</code> is defined and then called as <code>main();</code> <b>without <code>await</code></b>, and it sits <i>inside</i> the try block. So if Gemini throws, the rejection escapes the try/catch entirely as an <b>unhandled promise rejection</b> and the client hangs until timeout. Fix: delete the inner function and just <code>await ai.models.generateContent(...)</code> directly inside the try.</div>
+
+<div class="file">controllers/videoSection.js — signed direct upload</div>
+<pre><code>// 1. generateUploadSignature
+const timestamp = Math.round(new Date().getTime() / 1000);
+const publicId  = `leetcode-solutions/${problemId}/${userId}_${timestamp}`;
+const uploadParams = { timestamp, public_id: publicId };
+
+const signature = cloudinary.utils.api_sign_request(uploadParams,
+                                                   process.env.CLOUDINARY_API_SECRET);
+
+res.json({ signature, timestamp, public_id: publicId,
+           api_key:  process.env.CLOUDINARY_API_KEY,
+           cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+           upload_url: `https://api.cloudinary.com/v1_1/${...}/video/upload` });</code></pre>
+<div class="ok"><b>Why signed direct upload — a genuinely senior-level pattern.</b>
+<p>A 100 MB video could be uploaded to my Express server, which then forwards it to Cloudinary. That doubles bandwidth, ties up a Node process (which is single-threaded) for minutes, and risks memory pressure.</p>
+<p>Instead the server only issues a <b>short-lived cryptographic signature</b> — an HMAC of the upload parameters signed with the API secret. The browser then uploads <b>directly to Cloudinary</b>, presenting that signature. Cloudinary recomputes the HMAC and accepts the upload only if it matches.</p>
+<p>The result: the <b>API secret never leaves the server</b>, the file never touches my server, and I still fully control what may be uploaded (the <code>public_id</code> path and timestamp are fixed by me and are part of the signed payload, so the client cannot tamper with them).</p></div>
+<pre><code>// 2. saveVideoMetadata - called after the browser upload succeeds
+const cloudinaryResource = await cloudinary.api.resource(cloudinaryPublicId,
+                                                         { resource_type:'video' });
+if(!cloudinaryResource) return res.status(400).json({error:'Video not found on Cloudinary'});
+
+const existingVideo = await SolutionVideo.findOne({problemId, userId, cloudinaryPublicId});
+if(existingVideo) return res.status(409).json({error:'Video already exists'});
+
+const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id, {resource_type:"video"});
+
+const videoSolution = await SolutionVideo.create({
+   problemId, userId, cloudinaryPublicId, secureUrl,
+   duration: cloudinaryResource.duration || duration, thumbnailUrl
+});</code></pre>
+<p>The <b>verification step</b> matters: the server calls Cloudinary's Admin API to confirm the asset really exists before trusting the client's claim. Never trust a client saying "the upload worked". <b>409 Conflict</b> is the correct status for a duplicate resource.</p>
+<div class="bug"><b>Bug — the thumbnail never displays.</b> <code>cloudinary.image()</code> returns a complete <b>HTML <code>&lt;img&gt;</code> tag string</b>, not a URL. So <code>thumbnailUrl</code> is stored in MongoDB as markup like <code>&lt;img src='...'/&gt;</code>, and <code>Editorial.jsx</code> then does <code>poster={thumbnailUrl}</code> — feeding HTML into an attribute that expects a URL, so no poster frame ever renders. The correct call is the one that was <b>commented out two lines above</b>: <code>cloudinary.url(publicId, {...})</code>, which returns a plain URL string. A one-word fix (<code>image</code> &rarr; <code>url</code>) — and a great example of an API whose two similarly-named methods return very different things.</div>
+<pre><code>// 3. deleteVideo - DB first, then the asset
+const video = await SolutionVideo.findOneAndDelete({problemId});
+if(!video) return res.status(404).json({error:'Video not found'});
+await cloudinary.uploader.destroy(video.cloudinaryPublicId,
+                                  { resource_type:'video', invalidate:true });</code></pre>
+<p><code>invalidate: true</code> purges the file from Cloudinary's CDN edge caches, otherwise the deleted video would keep serving from cache for hours.</p>
+<div class="warn">Two things to critique here: the delete looks up by <code>problemId</code> only, ignoring <code>userId</code> — so any admin can delete any admin's video. And the two operations are not atomic: if the Cloudinary call fails after the Mongo delete, you get an orphaned file with no DB record. A production version would use a "pending deletion" flag or a cleanup job.</p></div>
+
+<h3 class="pb">5.5 Routes — the full API surface</h3>
+<table>
+<tr><th>Method &amp; Path</th><th>Guard</th><th>Controller</th><th>What it does</th></tr>
+<tr><td><code>POST /user/register</code></td><td>—</td><td>register</td><td>Create user, set cookie</td></tr>
+<tr><td><code>POST /user/login</code></td><td>—</td><td>login</td><td>Verify password, set cookie</td></tr>
+<tr><td><code>POST /user/logout</code></td><td>user</td><td>logout</td><td>Blocklist token in Redis, clear cookie</td></tr>
+<tr><td><code>POST /user/admin/register</code></td><td>admin</td><td>adminRegister</td><td>Create another admin</td></tr>
+<tr><td><code>DELETE /user/deleteProfile</code></td><td>user</td><td>deleteProfile</td><td>Delete account + cascade submissions</td></tr>
+<tr><td><code>GET /user/check</code></td><td>user</td><td>inline</td><td>Session restore on page refresh</td></tr>
+<tr><td><code>POST /problem/create</code></td><td>admin</td><td>createProblem</td><td>Validate via Judge0, then save</td></tr>
+<tr><td><code>PUT /problem/update/:id</code></td><td>admin</td><td>updateProblem</td><td>Re-validate, then update</td></tr>
+<tr><td><code>DELETE /problem/delete/:id</code></td><td>admin</td><td>deleteProblem</td><td>Remove a problem</td></tr>
+<tr><td><code>GET /problem/problemById/:id</code></td><td>user</td><td>getProblemById</td><td>Full problem + video (no hidden tests)</td></tr>
+<tr><td><code>GET /problem/getAllProblem</code></td><td>user</td><td>getAllProblem</td><td>List view</td></tr>
+<tr><td><code>GET /problem/problemSolvedByUser</code></td><td>user</td><td>solvedAllProblembyUser</td><td>Populated solved list</td></tr>
+<tr><td><code>GET /problem/submittedProblem/:pid</code></td><td>user</td><td>submittedProblem</td><td>Submission history for one problem</td></tr>
+<tr><td><code>POST /submission/run/:id</code></td><td>user</td><td>runCode</td><td>Visible tests, nothing saved</td></tr>
+<tr><td><code>POST /submission/submit/:id</code></td><td>user</td><td>submitCode</td><td>Hidden tests, saved verdict</td></tr>
+<tr><td><code>POST /ai/chat</code></td><td>user</td><td>solveDoubt</td><td>Gemini DSA tutor</td></tr>
+<tr><td><code>GET /video/create/:problemId</code></td><td>admin</td><td>generateUploadSignature</td><td>Signed Cloudinary params</td></tr>
+<tr><td><code>POST /video/save</code></td><td>admin</td><td>saveVideoMetadata</td><td>Verify + persist metadata</td></tr>
+<tr><td><code>DELETE /video/delete/:problemId</code></td><td>admin</td><td>deleteVideo</td><td>Remove DB row + Cloudinary asset</td></tr>
+</table>
+<p>The one route defined inline rather than in a controller:</p>
+<pre><code>authRouter.get('/check', userMiddleware, (req,res)=&gt;{
+    const reply = { firstName: req.result.firstName, emailId: req.result.emailId,
+                    _id: req.result._id, role: req.result.role };
+    res.status(200).json({ user: reply, message:"Valid User" });
+})</code></pre>
+<p><b>This endpoint is what makes refresh work.</b> Redux state is in memory and dies on F5, but the cookie survives. On mount, <code>App.jsx</code> calls <code>/user/check</code>; the middleware validates the cookie and the route echoes the user back, rehydrating Redux. Without it, every refresh would look like a logout.</p>
+<h2 id="s6" class="pb">6. Frontend, File by File</h2>
+
+<div class="file">frontend/index.html + vite.config.js</div>
+<pre><code>&lt;div id="root"&gt;&lt;/div&gt;
+&lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;</code></pre>
+<p>A single empty <code>div</code> — this is what "Single Page Application" means. Everything you see is injected into that node by React at runtime. <code>type="module"</code> lets the browser load ES modules natively, which is exactly why Vite's dev server is so fast: in development it serves your source as ES modules with <b>no bundling step at all</b>, and only bundles (with Rollup) for production.</p>
+<pre><code>export default defineConfig({ plugins: [react(), tailwindcss()] })</code></pre>
+<p>Two plugins: <code>@vitejs/plugin-react</code> gives JSX transform and Fast Refresh (hot reload that preserves component state); <code>@tailwindcss/vite</code> is the Tailwind v4 engine.</p>
+
+<div class="file">src/main.jsx — the bootstrap</div>
+<pre><code>createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    &lt;Provider store={store}&gt;
+      &lt;BrowserRouter&gt;
+        &lt;App /&gt;
+      &lt;/BrowserRouter&gt;
+    &lt;/Provider&gt;
+  &lt;/StrictMode&gt;
+)</code></pre>
+<p>Read the nesting from the outside in — each wrapper adds one capability, and <b>order matters</b>:</p>
+<ol>
+<li><b><code>createRoot</code></b> — the React 18+ concurrent renderer (replaces the old <code>ReactDOM.render</code>).</li>
+<li><b><code>StrictMode</code></b> — development-only. It <b>deliberately double-invokes</b> renders and effects to surface impure code and missing cleanup. <span class="small">This is why you may see two API calls in dev — a classic interview question. It does <b>not</b> happen in production builds.</span></li>
+<li><b><code>Provider store={store}</code></b> — puts the Redux store into React context so any component can call <code>useSelector</code> / <code>useDispatch</code>. It must be <b>outside</b> the router, because route guards in <code>App.jsx</code> read Redux state.</li>
+<li><b><code>BrowserRouter</code></b> — enables the HTML5 History API so URLs change without a full page reload.</li>
+</ol>
+
+<div class="file">src/store/store.js</div>
+<pre><code>export const store = configureStore({
+  reducer: { auth: authReducer }
+});</code></pre>
+<p><code>configureStore</code> is Redux Toolkit's replacement for <code>createStore</code>. It automatically wires up <b>redux-thunk</b> (needed for async thunks), the <b>Redux DevTools</b> extension, and dev-mode checks for accidental state mutation and non-serialisable values. The state tree is just <code>{ auth: {...} }</code>, so components read <code>state.auth</code>.</p>
+
+<div class="file">src/utils/axiosClient.js</div>
+<pre><code>const axiosClient = axios.create({
+    baseURL: 'http://localhost:3000',
+    withCredentials: true,
+    headers: { 'Content-Type': 'application/json' }
+});</code></pre>
+<p>One preconfigured instance imported everywhere, so no component repeats the base URL.</p>
+<div class="note"><b><code>withCredentials: true</code> is the single most important line in the frontend.</b> By default <code>fetch</code>/axios do <b>not</b> send cookies on cross-origin requests. This flag tells the browser to attach the <code>token</code> cookie to every call to :3000. It only works because the server sends <code>Access-Control-Allow-Credentials: true</code> and an explicit origin (not <code>*</code>). If asked "how does auth work on the frontend?", the honest answer is: <b>I never touch the token</b> — the browser stores it and sends it automatically.</div>
+<p class="small">Improvement to mention: a response interceptor that catches <code>401</code> globally and dispatches a logout, instead of every component handling it. Also <code>baseURL</code> should come from <code>import.meta.env.VITE_API_URL</code> so it is not hardcoded to localhost.</p>
+
+<div class="file">src/authSlice.js — Redux Toolkit</div>
+<p>Four async thunks, all following the same shape:</p>
+<pre><code>export const loginUser = createAsyncThunk(
+  'auth/login',
+  async (credentials, { rejectWithValue }) =&gt; {
+    try {
+      const response = await axiosClient.post('/user/login', credentials);
+      return response.data.user;           // -&gt; becomes action.payload on .fulfilled
+    } catch (error) {
+      return rejectWithValue(error);       // -&gt; becomes action.payload on .rejected
+    }
+  }
+);</code></pre>
+<p><b><code>createAsyncThunk</code></b> takes a type prefix and an async function, and automatically generates <b>three action types</b>: <code>auth/login/pending</code>, <code>/fulfilled</code>, <code>/rejected</code>. You never write those by hand.</p>
+<p><b><code>rejectWithValue</code></b> matters: a plain <code>throw</code> puts the raw Error in <code>action.error</code>, whereas <code>rejectWithValue(x)</code> puts your chosen value in <code>action.payload</code> — giving you control over the error shape.</p>
+<pre><code>export const checkAuth = createAsyncThunk('auth/check', async (_, {rejectWithValue}) =&gt; {
+    try {
+      const { data } = await axiosClient.get('/user/check');
+      return data.user;
+    } catch (error) {
+      if (error.response?.status === 401) return rejectWithValue(null);  // no session
+      return rejectWithValue(error);
+    }
+});</code></pre>
+<p>The 401 is special-cased: "not logged in" is a <b>normal state</b>, not an error to display. The underscore is the unused <code>arg</code> parameter — thunks always receive <code>(arg, thunkAPI)</code>.</p>
+<h4>The slice</h4>
+<pre><code>const authSlice = createSlice({
+  name: 'auth',
+  initialState: { user:null, isAuthenticated:false, loading:false, error:null },
+  reducers: {},                 // no synchronous actions needed
+  extraReducers: (builder) =&gt; {
+    builder
+      .addCase(loginUser.pending,   (state) =&gt; { state.loading = true; state.error = null; })
+      .addCase(loginUser.fulfilled, (state, action) =&gt; {
+          state.loading = false;
+          state.isAuthenticated = !!action.payload;
+          state.user = action.payload;
+      })
+      .addCase(loginUser.rejected,  (state, action) =&gt; {
+          state.loading = false;
+          state.error = action.payload?.message || 'Something went wrong';
+          state.isAuthenticated = false;
+          state.user = null;
+      })
+      // ... same three cases for register, checkAuth, logout
+  }
+});</code></pre>
+<table>
+<tr><th>Concept</th><th>Explanation</th></tr>
+<tr><td><code>reducers</code> vs <code>extraReducers</code></td><td><code>reducers</code> defines <i>and generates</i> actions owned by this slice. <code>extraReducers</code> <i>responds to</i> actions defined elsewhere — which is exactly what thunk-generated actions are. That is why <code>reducers</code> is empty here.</td></tr>
+<tr><td>"Mutating" state</td><td><code>state.loading = true</code> looks like a Redux crime. It is safe because RTK wraps every reducer in <b>Immer</b>, which records your mutations against a draft proxy and produces a new immutable state. You get mutable syntax with immutable guarantees.</td></tr>
+<tr><td><code>!!action.payload</code></td><td>Double-negation coerces the user object (or <code>null</code>) into a strict boolean.</td></tr>
+<tr><td>The pending/fulfilled/rejected triad</td><td>Every async operation has exactly three UI states: show a spinner, show data, show an error. Handling all three is why the app never shows a stale spinner.</td></tr>
+</table>
+
+<div class="file">src/App.jsx — routing and guards</div>
+<pre><code>const dispatch = useDispatch();
+const {isAuthenticated, user, loading} = useSelector((state)=&gt;state.auth);
+
+useEffect(() =&gt; { dispatch(checkAuth()); }, [dispatch]);
+
+if (loading) return &lt;div ...&gt;&lt;span className="loading loading-spinner loading-lg"&gt;&lt;/span&gt;&lt;/div&gt;;</code></pre>
+<p><b>This is the session-restore mechanism.</b> On first mount, dispatch <code>checkAuth</code>, which hits <code>/user/check</code> with the surviving cookie. While it is in flight, <code>loading</code> is true and the app renders <b>only a spinner</b>.</p>
+<div class="ok"><b>Why the loading gate is essential (a favourite follow-up question):</b> without it, the first render would have <code>isAuthenticated === false</code>, the guard would immediately <code>&lt;Navigate to="/signup"/&gt;</code>, and a logged-in user would be <b>kicked to signup on every refresh</b> for a split second before bouncing back. Blocking on <code>loading</code> prevents that flash of wrong content.</div>
+<pre><code>&lt;Routes&gt;
+  &lt;Route path="/"       element={isAuthenticated ? &lt;Homepage/&gt; : &lt;Navigate to="/signup"/&gt;}/&gt;
+  &lt;Route path="/login"  element={isAuthenticated ? &lt;Navigate to="/"/&gt; : &lt;Login/&gt;}/&gt;
+  &lt;Route path="/signup" element={isAuthenticated ? &lt;Navigate to="/"/&gt; : &lt;Signup/&gt;}/&gt;
+
+  &lt;Route path="/admin"        element={isAuthenticated &amp;&amp; user?.role === 'admin' ? &lt;Admin/&gt;      : &lt;Navigate to="/"/&gt;}/&gt;
+  &lt;Route path="/admin/create" element={isAuthenticated &amp;&amp; user?.role === 'admin' ? &lt;AdminPanel/&gt; : &lt;Navigate to="/"/&gt;}/&gt;
+  &lt;Route path="/admin/delete" element={... &lt;AdminDelete/&gt; ...}/&gt;
+  &lt;Route path="/admin/video"  element={... &lt;AdminVideo/&gt;  ...}/&gt;
+  &lt;Route path="/admin/upload/:problemId" element={... &lt;AdminUpload/&gt; ...}/&gt;
+
+  &lt;Route path="/problem/:problemId" element={&lt;ProblemPage/&gt;}/&gt;
+&lt;/Routes&gt;</code></pre>
+<p>Three guard patterns: <b>protected</b> (redirect out if logged out), <b>guest-only</b> (redirect in if logged in — so a logged-in user cannot see the login form), and <b>role-guarded</b> (admin routes). <code>user?.role</code> uses optional chaining so a <code>null</code> user does not crash the render. <code>:problemId</code> is a URL parameter read with <code>useParams()</code>.</p>
+<div class="warn"><b>Two gaps:</b> (1) <code>/problem/:problemId</code> has <b>no guard</b> — it renders for logged-out users, though the API calls inside it will 401, so you see a broken empty page rather than a redirect. (2) The frontend role check is <b>cosmetic only</b>: it hides buttons. Real enforcement is <code>adminMiddleware</code> on the server. Always say this — "the client guard is UX, the server guard is security."</div>
+<p class="small">The <code>/admin</code> dashboard also links to <code>/admin/update</code>, but no such route exists, so that card leads nowhere. Known incomplete feature — say so rather than let them find it.</p>
+
+<h3 class="pb">6.1 Pages</h3>
+
+<div class="file">pages/Signup.jsx and pages/Login.jsx</div>
+<pre><code>const signupSchema = z.object({
+  firstName: z.string().min(3, "Minimum character should be 3"),
+  emailId:   z.string().email("Invalid Email"),
+  password:  z.string().min(8, "Password is too weak")
+});
+
+const { register, handleSubmit, formState:{errors} } =
+    useForm({ resolver: zodResolver(signupSchema) });
+
+const onSubmit = (data) =&gt; { dispatch(registerUser(data)); };</code></pre>
+<table>
+<tr><th>Piece</th><th>Role</th></tr>
+<tr><td><b>Zod</b></td><td>Declares the validation schema once, as data. Also gives you TypeScript types for free in a TS project.</td></tr>
+<tr><td><b><code>zodResolver</code></b></td><td>The adapter that lets React Hook Form run the Zod schema on submit and map errors back to fields.</td></tr>
+<tr><td><b><code>register('emailId')</code></b></td><td>Spread onto the input with <code>{...register('emailId')}</code>. It attaches a <code>ref</code>, <code>name</code>, <code>onChange</code> and <code>onBlur</code> — the field stays <b>uncontrolled</b>.</td></tr>
+<tr><td><b><code>handleSubmit</code></b></td><td>Wraps your handler: prevents default, validates, and calls <code>onSubmit</code> <b>only if valid</b>.</td></tr>
+<tr><td><b><code>errors</code></b></td><td>Per-field messages, rendered conditionally and used to add the <code>input-error</code> class.</td></tr>
+</table>
+<div class="ok"><b>Why React Hook Form instead of <code>useState</code> per field?</b> With controlled inputs, every keystroke sets state and re-renders the whole form. RHF keeps values in <b>refs</b> (uncontrolled DOM), so typing causes <b>zero re-renders</b> — it only re-renders when validation state changes. On a large form that is a real performance difference. This is the standard answer to "why this library?".</div>
+<pre><code>useEffect(() =&gt; { if (isAuthenticated) navigate('/'); }, [isAuthenticated, navigate]);</code></pre>
+<p>After a successful login the thunk flips <code>isAuthenticated</code> in Redux, this effect fires, and the user is redirected. Navigation is a <b>side effect of state</b>, not something the submit handler does directly — a clean unidirectional-data-flow pattern.</p>
+<p>The password field uses <code>useState(showPassword)</code> to toggle <code>type</code> between <code>"password"</code> and <code>"text"</code>, swapping an eye / eye-off SVG. That one really is local UI state, so <code>useState</code> is correct there.</p>
+
+<div class="file">pages/Homepage.jsx</div>
+<pre><code>const [problems, setProblems] = useState([]);
+const [solvedProblems, setSolvedProblems] = useState([]);
+const [filters, setFilters] = useState({ difficulty:'all', tag:'all', status:'all' });
+
+useEffect(() =&gt; {
+    const fetchProblems = async () =&gt; {
+      const { data } = await axiosClient.get('/problem/getAllProblem');
+      setProblems(data);
+    };
+    const fetchSolvedProblems = async () =&gt; {
+      const { data } = await axiosClient.get('/problem/problemSolvedByUser');
+      setSolvedProblems(data);
+    };
+    fetchProblems();
+    if (user) fetchSolvedProblems();
+}, [user]);</code></pre>
+<p>Two parallel fetches. The solved list is only fetched when a user exists. <code>[user]</code> as the dependency array means it refetches when the user changes (login/logout).</p>
+<pre><code>const filteredProblems = problems.filter(problem =&gt; {
+    const difficultyMatch = filters.difficulty === 'all' || problem.difficulty === filters.difficulty;
+    const tagMatch        = filters.tag === 'all'        || problem.tags === filters.tag;
+    const statusMatch     = filters.status === 'all'     ||
+                            solvedProblems.some(sp =&gt; sp._id === problem._id);
+    return difficultyMatch &amp;&amp; tagMatch &amp;&amp; statusMatch;
+});</code></pre>
+<p>Client-side filtering: three independent predicates ANDed together, each short-circuiting on <code>'all'</code>. Derived data computed during render — deliberately <b>not</b> stored in state, which is the correct React instinct (state should hold sources of truth, not things you can compute).</p>
+<pre><code>{solvedProblems.some(sp =&gt; sp._id === problem._id) &amp;&amp; (
+   &lt;div className="badge badge-success"&gt;... Solved&lt;/div&gt;
+)}</code></pre>
+<p><code>&amp;&amp;</code> short-circuit rendering — if the left side is false React renders nothing. Each card is keyed by <code>problem._id</code>; <b>keys</b> let React's reconciler identify which list items moved rather than re-creating the DOM.</p>
+<div class="warn"><b>Scaling gap:</b> <code>getAllProblem</code> returns <b>every</b> problem and all filtering happens in the browser. At 3,000 problems this is slow and wasteful. The fix is server-side filtering and pagination: <code>GET /problem?difficulty=easy&amp;tag=dp&amp;page=2&amp;limit=20</code> with <code>.skip()</code>/<code>.limit()</code> in Mongo. Have this answer ready for "how would you scale this?".</div>
+<div class="bug"><code>{user.role=='admin' &amp;&amp; ...}</code> in the navbar is written <b>without</b> optional chaining, while the line just above it uses <code>user?.firstName</code>. If <code>user</code> is ever null during a render, this throws. Should be <code>user?.role</code>.</div>
+
+<div class="file">pages/ProblemPage.jsx — the main IDE screen</div>
+<p>The most complex component. Split-screen: description tabs on the left, editor and results on the right.</p>
+<pre><code>const [problem, setProblem]                 = useState(null);
+const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+const [code, setCode]                        = useState('');
+const [loading, setLoading]                  = useState(false);
+const [runResult, setRunResult]              = useState(null);
+const [submitResult, setSubmitResult]        = useState(null);
+const [activeLeftTab, setActiveLeftTab]      = useState('description');
+const [activeRightTab, setActiveRightTab]    = useState('code');
+const editorRef = useRef(null);
+let { problemId } = useParams();</code></pre>
+<p>Eight pieces of state. The tab state is what drives conditional rendering — there is no routing between tabs, just <code>activeLeftTab === 'editorial' &amp;&amp; (...)</code>.</p>
+<pre><code>const langMap = { cpp:'C++', java:'Java', javascript:'JavaScript' };</code></pre>
+<p><b>Why this exists:</b> internally the app uses lowercase keys (<code>'cpp'</code>) for Monaco and the API, but the database stores display names (<code>'C++'</code>) in <code>startCode[].language</code>. <code>langMap</code> bridges the two. <span class="small">Note there is a <i>third</i> spelling — the backend rewrites <code>'cpp'</code> to <code>'c++'</code> for the submission enum. Three names for one language is exactly the kind of inconsistency an interviewer will probe; the honest answer is "I would normalise on one canonical id, ideally the Judge0 language id."</span></p>
+<pre><code>useEffect(() =&gt; {
+    const fetchProblem = async () =&gt; {
+      setLoading(true);
+      const response = await axiosClient.get(`/problem/problemById/${problemId}`);
+      const initialCode = response.data.startCode
+            .find(sc =&gt; sc.language === langMap[selectedLanguage]).initialCode;
+      setProblem(response.data);
+      setCode(initialCode);
+      setLoading(false);
+    };
+    fetchProblem();
+}, [problemId]);
+
+// swap boilerplate when the language button changes
+useEffect(() =&gt; {
+    if (problem) {
+      const initialCode = problem.startCode
+            .find(sc =&gt; sc.language === langMap[selectedLanguage]).initialCode;
+      setCode(initialCode);
+    }
+}, [selectedLanguage, problem]);</code></pre>
+<div class="bug"><b>Two real issues here.</b> (1) <code>.find()</code> returns <code>undefined</code> if no matching language exists, and <code>.initialCode</code> on <code>undefined</code> throws — the page white-screens for any problem missing a template. Needs optional chaining and a fallback. (2) The second effect resets the editor whenever <code>problem</code> changes <i>or</i> the language changes, so <b>switching language silently discards the user's typed code</b>. Real LeetCode keeps a per-language draft. Good "what would you fix first" answer.</div>
+<pre><code>&lt;Editor
+  height="100%"
+  language={getLanguageForMonaco(selectedLanguage)}
+  value={code}
+  onChange={handleEditorChange}
+  onMount={handleEditorDidMount}
+  theme="vs-dark"
+  options={{ fontSize:14, minimap:{enabled:false}, automaticLayout:true,
+             tabSize:2, wordWrap:'on', lineNumbers:'on', ... }}
+/&gt;</code></pre>
+<p><b>Monaco</b> is the actual editor engine from VS Code, so you get syntax highlighting, bracket matching, IntelliSense-style behaviour and multi-cursor for free. <code>automaticLayout: true</code> makes it resize with its container. <code>onMount</code> stores the editor instance in <code>editorRef</code> — a <code>ref</code> rather than state because holding it does not require a re-render.</p>
+<pre><code>const handleRun = async () =&gt; {
+    setLoading(true); setRunResult(null);
+    try {
+      const response = await axiosClient.post(`/submission/run/${problemId}`,
+                                              { code, language: selectedLanguage });
+      setRunResult(response.data);
+      setActiveRightTab('testcase');       // auto-switch to results
+    } catch (error) {
+      setRunResult({ success:false, error:'Internal server error' });
+      setActiveRightTab('testcase');
+    } finally { setLoading(false); }
+};</code></pre>
+<p><code>handleSubmitCode</code> is the same shape against <code>/submission/submit/</code>, switching to the <code>'result'</code> tab. The auto tab-switch is a nice UX touch: the user presses Run and is taken straight to the output.</p>
+<p><b>Rendering results:</b> the Testcase tab maps over <code>runResult.testCases</code> showing <code>stdin</code> / <code>expected_output</code> / <code>stdout</code> per case with a pass/fail marker driven by <code>tc.status_id == 3</code>. The Result tab shows the summary: passed/total, runtime and memory.</p>
+<p class="small">The five left tabs are: <b>Description</b> (title, difficulty badge, tag, description, visible examples) · <b>Editorial</b> (renders <code>&lt;Editorial/&gt;</code> with the video URL) · <b>Solutions</b> (maps <code>referenceSolution</code>) · <b>Submissions</b> (renders <code>&lt;SubmissionHistory/&gt;</code>) · <b>ChatAI</b> (renders <code>&lt;ChatAi/&gt;</code>).</p>
+
+<div class="file">pages/Admin.jsx</div>
+<p>A pure presentational dashboard. An array of option objects (id, title, description, Lucide icon component, DaisyUI colour class, route) is mapped into cards. Storing the icon as <code>icon: Plus</code> and rendering it via <code>const IconComponent = option.icon; &lt;IconComponent size={32}/&gt;</code> is worth noting — <b>components are just values</b> in React and can be stored in data.</p>
+
+<h3 class="pb">6.2 Components</h3>
+
+<div class="file">components/AdminPanel.jsx — create a problem</div>
+<p>The most sophisticated form in the app. Its Zod schema mirrors the Mongoose schema exactly:</p>
+<pre><code>const problemSchema = z.object({
+  title: z.string().min(1,'Title is required'),
+  description: z.string().min(1,'Description is required'),
+  difficulty: z.enum(['easy','medium','hard']),
+  tags: z.enum(['array','linkedList','graph','dp']),
+  visibleTestCases: z.array(z.object({
+      input: z.string().min(1), output: z.string().min(1), explanation: z.string().min(1)
+  })).min(1,'At least one visible test case required'),
+  hiddenTestCases: z.array(z.object({
+      input: z.string().min(1), output: z.string().min(1)
+  })).min(1,'At least one hidden test case required'),
+  startCode: z.array(z.object({
+      language: z.enum(['C++','Java','JavaScript']), initialCode: z.string().min(1)
+  })).length(3,'All three languages required'),
+  referenceSolution: z.array(z.object({
+      language: z.enum(['C++','Java','JavaScript']), completeCode: z.string().min(1)
+  })).length(3,'All three languages required')
+});</code></pre>
+<p><code>.length(3)</code> forces exactly three entries — all languages must be supplied, which is what makes the server-side Judge0 validation meaningful.</p>
+<h4><code>useFieldArray</code> — dynamic form rows</h4>
+<pre><code>const { fields: visibleFields, append: appendVisible, remove: removeVisible }
+    = useFieldArray({ control, name: 'visibleTestCases' });
+
+// render
+{visibleFields.map((field, index) =&gt; (
+   &lt;div key={field.id}&gt;
+     &lt;input {...register(`visibleTestCases.${index}.input`)} placeholder="Input"/&gt;
+     &lt;input {...register(`visibleTestCases.${index}.output`)} placeholder="Output"/&gt;
+     &lt;textarea {...register(`visibleTestCases.${index}.explanation`)}/&gt;
+     &lt;button type="button" onClick={()=&gt;removeVisible(index)}&gt;Remove&lt;/button&gt;
+   &lt;/div&gt;
+))}
+&lt;button type="button" onClick={()=&gt;appendVisible({input:'',output:'',explanation:''})}&gt;
+  Add Visible Case
+&lt;/button&gt;</code></pre>
+<p><b>This is the piece to talk about.</b> The admin can add and remove an arbitrary number of test cases at runtime. <code>useFieldArray</code> manages the array; the <b>dotted registration path</b> <code>visibleTestCases.0.input</code> tells RHF to build a nested array in the submitted object. <code>key={field.id}</code> uses RHF's stable generated id rather than the array index — using the index as a key would corrupt state when a middle row is removed.</p>
+<p><code>defaultValues</code> pre-seeds the three fixed language rows for <code>startCode</code> and <code>referenceSolution</code>, and <code>type="button"</code> on Add/Remove is essential — without it they would default to <code>submit</code> and post the form.</p>
+
+<div class="file">components/AdminDelete.jsx and AdminVideo.jsx</div>
+<p>Both fetch <code>/problem/getAllProblem</code> into a DaisyUI table with the standard three-state pattern — <code>loading</code> spinner, <code>error</code> alert, then data.</p>
+<pre><code>const handleDelete = async (id) =&gt; {
+    if (!window.confirm('Are you sure you want to delete this problem?')) return;
+    await axiosClient.delete(`/problem/delete/${id}`);
+    setProblems(problems.filter(problem =&gt; problem._id !== id));
+};</code></pre>
+<p>After a successful delete the row is removed from local state with <code>.filter()</code> instead of refetching the whole list — an <b>optimistic-style local update</b>, one fewer round trip.</p>
+<p><code>AdminVideo</code> is the same table but each row offers <b>Upload</b> (a <code>NavLink</code> to <code>/admin/upload/:problemId</code>) and <b>Delete</b> (calling <code>/video/delete/:id</code>).</p>
+<p class="small">Small bug in both: the badge colour compares <code>problem.difficulty === 'Easy'</code> with a capital E, but the database stores lowercase <code>'easy'</code> — so every difficulty badge renders red.</p>
+
+<div class="file">components/AdminUpload.jsx — the three-step upload</div>
+<pre><code>// Step 1: ask our server for a signature
+const signatureResponse = await axiosClient.get(`/video/create/${problemId}`);
+const { signature, timestamp, public_id, api_key, cloud_name, upload_url } = signatureResponse.data;
+
+// Step 2: build multipart form data
+const formData = new FormData();
+formData.append('file', file);
+formData.append('signature', signature);
+formData.append('timestamp', timestamp);
+formData.append('public_id', public_id);
+formData.append('api_key', api_key);
+
+// Step 3: upload DIRECTLY to Cloudinary (plain axios, not axiosClient!)
+const uploadResponse = await axios.post(upload_url, formData, {
+   headers: { 'Content-Type': 'multipart/form-data' },
+   onUploadProgress: (progressEvent) =&gt; {
+      setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+   },
+});
+
+// Step 4: tell our server where it landed
+await axiosClient.post('/video/save', {
+   problemId,
+   cloudinaryPublicId: uploadResponse.data.public_id,
+   secureUrl:          uploadResponse.data.secure_url,
+   duration:           uploadResponse.data.duration,
+});</code></pre>
+<div class="note"><b>Note the deliberate use of raw <code>axios</code> in step 3, not <code>axiosClient</code>.</b> <code>axiosClient</code> carries <code>withCredentials:true</code> and a JSON content type — you must <b>not</b> send your app's auth cookie to a third-party domain, and the body here is multipart, not JSON. Spotting this distinction impresses interviewers.</div>
+<p><code>onUploadProgress</code> gives a real percentage progress bar. Client-side validation via RHF's <code>validate</code> object enforces <code>file.type.startsWith('video/')</code> and a 100 MB cap. <code>watch('videoFile')?.[0]</code> subscribes to the field so the selected file's name and size render live.</p>
+
+<div class="file">components/ChatAi.jsx</div>
+<pre><code>const [messages, setMessages] = useState([
+    { role:'model', parts:[{text:"Hi, How are you"}]},
+    { role:'user',  parts:[{text:"I am Good"}]}
+]);
+
+const onSubmit = async (data) =&gt; {
+    setMessages(prev =&gt; [...prev, { role:'user', parts:[{text:data.message}] }]);
+    reset();
+    const response = await axiosClient.post("/ai/chat", {
+        messages: messages,                    // &lt;-- see the bug below
+        title: problem.title,
+        description: problem.description,
+        testCases: problem.visibleTestCases,
+        startCode: problem.startCode
+    });
+    setMessages(prev =&gt; [...prev, { role:'model', parts:[{text:response.data.message}] }]);
+};</code></pre>
+<p>The message shape <code>{role, parts:[{text}]}</code> is <b>Gemini's required format</b>, so the frontend state can be forwarded to the API unchanged. Each request also re-sends the problem context, which is what keeps the tutor grounded in the current question.</p>
+<pre><code>const messagesEndRef = useRef(null);
+useEffect(() =&gt; {
+   messagesEndRef.current?.scrollIntoView({ behavior:"smooth" });
+}, [messages]);
+// ... &lt;div ref={messagesEndRef} /&gt; as the last child</code></pre>
+<p>Classic <b>auto-scroll-to-bottom</b>: an empty sentinel div at the end of the list, scrolled into view whenever <code>messages</code> changes. A textbook correct use of <code>useRef</code> for direct DOM access.</p>
+<div class="bug"><b>Off-by-one state bug:</b> <code>setMessages</code> is <b>asynchronous</b> — React batches it, so the <code>messages</code> variable in that closure is still the <i>old</i> array when the POST is built. The user's newest question is therefore <b>never sent</b>; the AI answers the previous turn. The fix is to build the array once and use it for both:
+<pre><code>const updated = [...messages, { role:'user', parts:[{text:data.message}] }];
+setMessages(updated);
+await axiosClient.post("/ai/chat", { messages: updated, ... });</code></pre>
+This is an excellent bug to raise yourself — it demonstrates you understand that <b>state updates do not apply synchronously</b>.</div>
+<p class="small">Also: the two hardcoded greeting messages are placeholder data that ship to the user, and there is no "AI is typing" indicator. Both are easy wins to mention.</p>
+
+<div class="file">components/Editorial.jsx — custom video player</div>
+<pre><code>const videoRef = useRef(null);
+const [isPlaying, setIsPlaying]   = useState(false);
+const [currentTime, setCurrentTime] = useState(0);
+const [isHovering, setIsHovering] = useState(false);
+
+const togglePlayPause = () =&gt; {
+    if (videoRef.current) {
+      isPlaying ? videoRef.current.pause() : videoRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+};
+
+useEffect(() =&gt; {
+    const video = videoRef.current;
+    const handleTimeUpdate = () =&gt; { if (video) setCurrentTime(video.currentTime); };
+    if (video) {
+      video.addEventListener('timeupdate', handleTimeUpdate);
+      return () =&gt; video.removeEventListener('timeupdate', handleTimeUpdate);  // cleanup
+    }
+}, []);</code></pre>
+<p>A hand-built player over a native <code>&lt;video&gt;</code> element: <code>useRef</code> to reach the DOM node and call the imperative media API, a <code>timeupdate</code> listener to drive the progress bar, and a <b>cleanup function</b> returned from <code>useEffect</code> to remove the listener on unmount — the standard way to prevent memory leaks. Seeking works by writing <code>videoRef.current.currentTime</code> from the range input's <code>onChange</code>. Controls fade via <code>opacity</code> based on <code>isHovering || !isPlaying</code>.</p>
+<p><code>formatTime</code> converts seconds to <code>M:SS</code> with <code>Math.floor(seconds/60)</code> and zero padding.</p>
+
+<div class="file">components/SubmissionHistory.jsx</div>
+<p>Fetches <code>/problem/submittedProblem/:problemId</code> and renders a zebra table: index, language, status badge, runtime, memory, passed/total, submitted date, and a <b>Code</b> button.</p>
+<pre><code>const [selectedSubmission, setSelectedSubmission] = useState(null);
+...
+{selectedSubmission && (
+   &lt;div className="modal modal-open"&gt;
+      ... &lt;pre&gt;&lt;code&gt;{selectedSubmission.code}&lt;/code&gt;&lt;/pre&gt; ...
+      &lt;button onClick={() =&gt; setSelectedSubmission(null)}&gt;Close&lt;/button&gt;
+   &lt;/div&gt;
+)}</code></pre>
+<p>A neat <b>modal-as-state</b> pattern: <code>null</code> means closed, a submission object means open <i>and</i> supplies its content. One state variable does both jobs. Helpers <code>getStatusColor</code>, <code>formatMemory</code> (kB to MB above 1024) and <code>formatDate</code> keep the JSX clean.</p>
+<h2 id="s7" class="pb">7. End-to-End Flows</h2>
+<p>Interviewers love "walk me through what happens when a user clicks Submit". Rehearse these five.</p>
+
+<h3>7.1 Signup</h3>
+<pre><code>Signup.jsx: user fills form
+  -> Zod validates in the browser (firstName>=3, valid email, password>=8)
+  -> dispatch(registerUser(data))
+  -> authSlice: 'auth/register/pending'  => loading = true (button shows spinner)
+  -> axiosClient.post('/user/register', data)     [withCredentials: true]
+       |
+       v  Express
+  cors -> express.json -> cookieParser -> authRouter -> register()
+  -> validate(req.body)                 // validator.js: fields, email, strong password
+  -> bcrypt.hash(password, 10)          // ~100ms, deliberately slow
+  -> req.body.role = 'user'             // block privilege escalation
+  -> User.create(...)                   // Mongoose validates schema, unique index on email
+  -> jwt.sign({_id, emailId, role}, JWT_KEY, {expiresIn: 3600})
+  -> res.cookie('token', token, {maxAge: 3600000})
+  -> 201 { user: {...}, message }
+       |
+       v  back in the browser
+  Set-Cookie stored automatically by the browser
+  -> 'auth/register/fulfilled' => user = payload, isAuthenticated = true, loading = false
+  -> useEffect in Signup sees isAuthenticated -> navigate('/')
+  -> App.jsx route "/" now renders &lt;Homepage/&gt;</code></pre>
+
+<h3>7.2 Page refresh (session restore)</h3>
+<pre><code>F5 -> React remounts, Redux state is EMPTY (in-memory only)
+  -> App.jsx useEffect: dispatch(checkAuth())
+  -> loading = true  => the whole app renders ONLY a spinner (no flash of /signup)
+  -> GET /user/check   [browser auto-attaches the surviving cookie]
+  -> userMiddleware: token present? verify signature+exp? user exists? not in Redis blocklist?
+  -> route echoes { firstName, emailId, _id, role }
+  -> 'auth/check/fulfilled' => Redux rehydrated, isAuthenticated = true
+  -> spinner disappears, Homepage renders
+
+If the cookie is missing/expired -> 401 -> rejectWithValue(null)
+  -> isAuthenticated = false -> &lt;Navigate to="/signup"/&gt;</code></pre>
+
+<h3>7.3 Run code (visible test cases, nothing saved)</h3>
+<pre><code>ProblemPage: click "Run"
+  -> POST /submission/run/:id  { code, language:'cpp' }
+  -> userMiddleware (authenticated)
+  -> runCode():
+       language 'cpp' -> 'c++'
+       Problem.findById -> take VISIBLE test cases
+       map to [{source_code, language_id, stdin, expected_output}, ...]
+       submitBatch()  -> Judge0 returns tokens IMMEDIATELY
+       submitToken()  -> poll GET /submissions/batch until every status_id > 2
+       aggregate: count status_id===3, sum time, max memory
+  -> 201 { success, testCases:[full Judge0 objects], runtime, memory }
+  -> setRunResult(data); setActiveRightTab('testcase')
+  -> UI lists each case: Input / Expected / Output / pass-fail
+  NOTHING is written to MongoDB</code></pre>
+
+<h3>7.4 Submit code (hidden test cases, verdict saved)</h3>
+<pre><code>click "Submit"
+  -> POST /submission/submit/:id { code, language }
+  -> submitCode():
+      1. Submission.create({... status:'pending', testCasesTotal: hidden.length})
+             ^ persisted BEFORE judging, so a crash never loses the attempt
+      2. build batch from HIDDEN test cases
+      3. submitBatch -> tokens -> submitToken -> poll to completion
+      4. aggregate:
+            status_id===3  -> testCasesPassed++, runtime += time, memory = max(memory)
+            status_id===4  -> status='error'   (should be 'wrong'  - known bug)
+            otherwise      -> status='wrong'   (should be 'error'  - known bug)
+      5. submittedResult.save()   // pending -> accepted / wrong / error
+      6. push problemId into user.problemSolved   (known bug: not gated on 'accepted')
+  -> 201 { accepted, totalTestCases, passedTestCases, runtime, memory }
+  -> setSubmitResult(data); setActiveRightTab('result')
+  -> "Accepted" panel or failure panel with passed/total</code></pre>
+
+<h3>7.5 Video upload (signed direct upload)</h3>
+<pre><code>AdminUpload: admin picks a .mp4
+  1. GET  /video/create/:problemId      [adminMiddleware]
+        server: timestamp = now/1000
+                public_id = leetcode-solutions/&lt;problemId&gt;/&lt;userId&gt;_&lt;ts&gt;
+                signature = HMAC(uploadParams, CLOUDINARY_API_SECRET)
+        -> { signature, timestamp, public_id, api_key, cloud_name, upload_url }
+
+  2. POST directly to Cloudinary (raw axios, multipart/form-data, no app cookie)
+        browser --------- 100 MB video ---------> Cloudinary
+        (never touches my Express server; onUploadProgress drives the % bar)
+        Cloudinary recomputes the HMAC; mismatch => rejected
+
+  3. POST /video/save  { problemId, cloudinaryPublicId, secureUrl, duration }
+        server calls cloudinary.api.resource() to VERIFY the asset really exists
+        409 if a duplicate already exists
+        SolutionVideo.create({... thumbnailUrl})
+
+  4. Later: GET /problem/problemById/:id merges secureUrl + thumbnailUrl + duration
+        into the problem response -> Editorial tab plays it</code></pre>
+
+<h3>7.6 AI chat</h3>
+<pre><code>ChatAi: user types a question
+  -> POST /ai/chat { messages, title, description, testCases, startCode }
+  -> solveDoubt(): new GoogleGenAI({apiKey: GEMINI_KEY})
+       contents          = the whole conversation array (LLMs are stateless -> resend history)
+       systemInstruction = template literal injecting THIS problem + tutor rules
+                           + hard scope limit: DSA for this problem only
+  -> gemini-1.5-flash generates
+  -> 201 { message: response.text }
+  -> appended to messages as {role:'model'}; sentinel div auto-scrolls into view</code></pre>
+
+<h2 id="s8" class="pb">8. Core Concepts Explained</h2>
+<p>These are the "why", not the "what". Expect at least five of these to come up.</p>
+
+<h3>8.1 JWT — how it actually works</h3>
+<p>A JWT is three base64url segments joined by dots: <code>header.payload.signature</code>.</p>
+<pre><code>header    {"alg":"HS256","typ":"JWT"}
+payload   {"_id":"665...","emailId":"a@b.com","role":"user","iat":...,"exp":...}
+signature HMACSHA256( base64(header) + "." + base64(payload), JWT_KEY )</code></pre>
+<div class="warn"><b>Critical point most candidates get wrong:</b> the payload is <b>encoded, not encrypted</b>. Anyone can paste the token into jwt.io and read it. The signature guarantees <b>integrity</b> (nobody can change the payload without the secret), <b>not confidentiality</b>. So never put secrets in a JWT payload — which is why this project puts only <code>_id</code>, <code>emailId</code> and <code>role</code> in it.</div>
+<p><b>Verification</b> is: recompute the HMAC over the received header+payload using <code>JWT_KEY</code>, compare with the received signature, then check <code>exp</code>. If either fails, <code>jwt.verify</code> throws.</p>
+<table>
+<tr><th></th><th>Sessions</th><th>JWT (this project)</th></tr>
+<tr><td>Server state</td><td>Session store per user</td><td>None — stateless</td></tr>
+<tr><td>Horizontal scaling</td><td>Needs sticky sessions or shared Redis store</td><td>Any server can verify — scales trivially</td></tr>
+<tr><td>Revocation</td><td>Trivial: delete the session</td><td><b>Hard</b> — hence the Redis blocklist</td></tr>
+<tr><td>Payload size</td><td>Tiny cookie id</td><td>Larger cookie carrying claims</td></tr>
+</table>
+
+<h3>8.2 The Redis blocklist — the project's smartest idea</h3>
+<p>Stateless JWT has one real weakness: you cannot un-issue a token. This project solves it in three lines:</p>
+<pre><code>await redisClient.set(`token:${token}`, 'Blocked');
+await redisClient.expireAt(`token:${token}`, payload.exp);
+// and in userMiddleware:
+const IsBlocked = await redisClient.exists(`token:${token}`);</code></pre>
+<ul>
+<li><b>Why Redis and not MongoDB?</b> This lookup runs on <b>every authenticated request</b>. Redis is in-memory with O(1) key access (microseconds); Mongo would add a disk-backed query to every request.</li>
+<li><b>Why <code>expireAt(payload.exp)</code>?</b> After the JWT's own expiry, <code>jwt.verify</code> rejects it anyway, so the blocklist entry is dead weight. Setting the Redis TTL to exactly <code>exp</code> makes the blocklist <b>self-pruning</b> and permanently bounded — you never need a cleanup job, and memory cannot grow unbounded.</li>
+<li><b>Trade-off to acknowledge:</b> this reintroduces server state, so it is a <i>hybrid</i>. A fully stateless alternative is short-lived access tokens (5–15 min) plus refresh tokens, which shrinks the revocation window instead of eliminating it.</li>
+</ul>
+
+<h3>8.3 bcrypt and password storage</h3>
+<pre><code>$2b$10$N9qo8uLOickgx2ZMRZoMye.IjZAgcfl7p92ldGxad68LJZdL17lhWy
+ |  |  |                     |
+ |  |  +-- 22-char salt      +-- 31-char hash
+ |  +----- cost factor 10 = 2^10 = 1024 rounds
+ +-------- algorithm version</code></pre>
+<ul>
+<li><b>Hashing, not encryption</b> — one-way by design; there is no "decrypt".</li>
+<li><b>The salt is random per password and stored inside the hash</b>, which is why two identical passwords produce different hashes and <b>rainbow tables are useless</b>.</li>
+<li><b>Deliberately slow.</b> Unlike SHA-256 (designed to be fast), bcrypt's cost factor makes each guess expensive, so offline brute-force is impractical. Raising the cost by 1 doubles the work.</li>
+<li><code>bcrypt.compare(plain, hash)</code> extracts the salt from the stored hash, re-hashes the input, and compares in constant time.</li>
+</ul>
+
+<h3>8.4 Judge0 and the async job pattern</h3>
+<p>Compiling and running untrusted code takes seconds and must be <b>sandboxed</b> — you can never <code>eval()</code> user code in your own Node process. Judge0 runs each submission in an isolated container with CPU, memory and wall-clock limits.</p>
+<p>Because execution is slow, the API is <b>asynchronous</b>:</p>
+<ol>
+<li><b>POST batch</b> &rarr; returns tokens instantly (a receipt, not a result).</li>
+<li><b>GET batch?tokens=...</b> &rarr; poll until <code>status_id &gt; 2</code> for all.</li>
+</ol>
+<p>This is the classic <b>submit-and-poll job queue</b>. If asked "how would you improve it?", the answer is <b>webhooks/callbacks</b> (Judge0 supports <code>callback_url</code>) or moving judging into a background worker with BullMQ + Redis, so the HTTP request returns a submission id immediately and the frontend subscribes via WebSocket or Server-Sent Events. That removes the long-held HTTP connection entirely.</p>
+
+<h3>8.5 Redux Toolkit</h3>
+<table>
+<tr><th>Term</th><th>Meaning here</th></tr>
+<tr><td><b>Store</b></td><td>Single source of truth: <code>{ auth: {user, isAuthenticated, loading, error} }</code>.</td></tr>
+<tr><td><b>Action</b></td><td>A plain object <code>{type, payload}</code> describing what happened.</td></tr>
+<tr><td><b>Reducer</b></td><td><code>(state, action) =&gt; newState</code>. Pure; no API calls inside.</td></tr>
+<tr><td><b>Thunk</b></td><td>Middleware that lets you dispatch a <i>function</i> instead of an object — this is where async work lives.</td></tr>
+<tr><td><b>Immer</b></td><td>Lets you write <code>state.loading = true</code> while still producing a new immutable state object.</td></tr>
+<tr><td><b>Selector</b></td><td><code>useSelector(state =&gt; state.auth)</code> subscribes the component; it re-renders only when that slice changes.</td></tr>
+</table>
+<p><b>Why Redux only for auth?</b> Because auth is genuinely <b>global</b> — the router guards, the navbar and several pages all need it. Problem lists and submissions are <b>local to one screen</b>, so they live in <code>useState</code>. Putting everything in Redux is a common junior mistake; being able to justify the boundary is a senior signal. (A modern alternative: TanStack Query for server state, Redux only for client state.)</p>
+
+<h3>8.6 CORS, in one paragraph</h3>
+<p>The browser's <b>same-origin policy</b> blocks JS on <code>localhost:5173</code> from reading a response from <code>localhost:3000</code> — different port means different origin. CORS is the server <b>opting in</b> via response headers. Three rules to remember: (1) <code>origin</code> must be an explicit URL, because <code>*</code> is <b>illegal</b> with credentials; (2) <code>credentials:true</code> on the server and <code>withCredentials:true</code> on the client are <b>both</b> required or the cookie is silently dropped; (3) non-simple requests (PUT, DELETE, JSON bodies) trigger a <b>preflight</b> <code>OPTIONS</code> request first, which the <code>cors</code> middleware answers automatically.</p>
+
+<h3>8.7 Mongoose essentials</h3>
+<table>
+<tr><th>Feature</th><th>Where it is used</th></tr>
+<tr><td><code>Schema</code> + validators</td><td>All four models — MongoDB itself is schemaless; Mongoose adds the schema in the app layer.</td></tr>
+<tr><td><code>ref</code> + <code>populate()</code></td><td><code>problemSolved</code>, <code>problemCreator</code>, <code>userId</code>, <code>problemId</code> — application-level joins.</td></tr>
+<tr><td><code>index()</code></td><td>Compound index on <code>{userId, problemId}</code> for submission history.</td></tr>
+<tr><td>Hooks (<code>post('findOneAndDelete')</code>)</td><td>Cascade-deleting submissions when a user is removed.</td></tr>
+<tr><td><code>select()</code></td><td>Projection — the mechanism that keeps <code>hiddenTestCases</code> off the wire.</td></tr>
+<tr><td><code>runValidators:true</code></td><td><code>findByIdAndUpdate</code> — validators are skipped on updates by default.</td></tr>
+<tr><td><code>timestamps:true</code></td><td>Auto <code>createdAt</code>/<code>updatedAt</code> on users, submissions and videos.</td></tr>
+</table>
+
+<h3>8.8 React hooks used in this project</h3>
+<table>
+<tr><th>Hook</th><th>Used for</th></tr>
+<tr><td><code>useState</code></td><td>Local UI state: form toggles, tabs, fetched lists, results.</td></tr>
+<tr><td><code>useEffect</code></td><td>Side effects: data fetching on mount, auto-scroll, video event listeners (with cleanup).</td></tr>
+<tr><td><code>useRef</code></td><td>DOM/instance handles that must <b>not</b> trigger re-renders: Monaco editor, <code>&lt;video&gt;</code>, scroll sentinel.</td></tr>
+<tr><td><code>useSelector</code> / <code>useDispatch</code></td><td>Reading Redux state / dispatching thunks.</td></tr>
+<tr><td><code>useParams</code></td><td>Reading <code>:problemId</code> from the URL.</td></tr>
+<tr><td><code>useNavigate</code></td><td>Programmatic redirects after login/signup.</td></tr>
+<tr><td><code>useForm</code> / <code>useFieldArray</code></td><td>React Hook Form: all forms, plus dynamic test-case rows.</td></tr>
+</table>
+<p><b>The dependency array rule:</b> <code>[]</code> = run once on mount; <code>[x]</code> = run whenever <code>x</code> changes; omitted = run after <b>every</b> render (almost always a bug). A returned function is the <b>cleanup</b>, run on unmount and before each re-run — used in <code>Editorial.jsx</code> to remove the <code>timeupdate</code> listener.</p>
+
+<h2 id="s9" class="pb">9. Bugs, Gaps &amp; What You Would Improve</h2>
+<div class="note"><b>How to use this section.</b> Do not wait to be caught. When they ask "what would you improve?", lead with two or three of these, explain the root cause and give the fix. A candidate who can critique their own code reads as far more senior than one who claims it is perfect.</div>
+
+<h3>The top 5 — memorise these</h3>
+<table>
+<tr><th>#</th><th>Bug</th><th>Root cause</th><th>Fix</th></tr>
+<tr><td>1</td><td><code>waiting()</code> never waits &rarr; hot polling loop against Judge0</td><td><code>setTimeout</code> is a callback API, not a Promise; <code>return</code> inside its callback returns from the callback</td><td><code>const waiting = t =&gt; new Promise(r =&gt; setTimeout(r, t));</code></td></tr>
+<tr><td>2</td><td>Wrong submissions still marked "Solved"</td><td>The <code>problemSolved.push()</code> sits outside any status check</td><td><code>if (status === 'accepted' &amp;&amp; !...includes(problemId))</code></td></tr>
+<tr><td>3</td><td>Auth cookie readable by JavaScript (XSS token theft)</td><td>Missing cookie flags</td><td><code>res.cookie('token', t, {httpOnly:true, secure:true, sameSite:'strict', maxAge:3600000})</code></td></tr>
+<tr><td>4</td><td>ChatAI answers the previous question</td><td><code>setMessages</code> is async, so the closure sends the stale array</td><td>Build <code>const updated = [...messages, newMsg]</code> and use it for both the state update and the POST</td></tr>
+<tr><td>5</td><td>Verdict labels swapped (<code>wrong</code> vs <code>error</code>)</td><td><code>status_id === 4</code> is Wrong Answer but is labelled <code>'error'</code></td><td>Swap the two branches</td></tr>
+</table>
+
+<h3>Security</h3>
+<ul>
+<li><b>Cookie flags</b> — no <code>httpOnly</code>, <code>secure</code> or <code>sameSite</code> (see above). Highest-impact single fix.</li>
+<li><b>Admin role read from the token, not the DB</b> — <code>adminMiddleware</code> checks <code>payload.role</code>. A demoted admin keeps admin rights until the token expires. Use <code>result.role</code>.</li>
+<li><b><code>referenceSolution</code> is sent to every logged-in user</b> via <code>getProblemById</code>'s projection — users can read the answer without solving. Gate it behind an accepted submission.</li>
+<li><b>No rate limiting</b> anywhere. Login is brute-forceable; <code>/ai/chat</code> and <code>/submission/*</code> cost real money per call. Add <code>express-rate-limit</code>, tighter on auth and AI routes.</li>
+<li><b>No Helmet</b> — missing standard security headers (CSP, HSTS, X-Frame-Options).</li>
+<li><b>Errors leak internals</b> — <code>res.status(400).send("Error: "+err)</code> stringifies the whole error, exposing stack details and Mongo error text. Log server-side, return a generic client message.</li>
+<li><b>No CSRF protection</b> — cookie auth without <code>sameSite</code> is CSRF-exposed.</li>
+<li><b>Video delete ignores ownership</b> — <code>findOneAndDelete({problemId})</code> lets any admin delete any admin's video.</li>
+</ul>
+
+<h3>Correctness</h3>
+<ul>
+<li><b><code>login</code> has no null check</b> on <code>User.findOne</code> — a nonexistent email throws a TypeError that the catch block disguises as a 401.</li>
+<li><b><code>submittedProblem</code> sends two responses</b> when there are no submissions &rarr; <code>ERR_HTTP_HEADERS_SENT</code>, and returns a string in one branch and an array in the other. Always return <code>[]</code>.</li>
+<li><b><code>solveDoubt</code> calls <code>main()</code> without <code>await</code></b> &rarr; Gemini failures become unhandled rejections and the client hangs.</li>
+<li><b><code>getAllProblem</code> returns 404 when the list is empty</b> — an empty collection is a valid <code>200 []</code>, not "not found". It breaks the Homepage.</li>
+<li><b><code>ProblemPage</code> <code>.find(...).initialCode</code></b> throws if a language template is missing.</li>
+<li><b>Switching language wipes typed code</b> — no per-language draft.</li>
+<li><b>Difficulty badges always red</b> in the admin tables — comparing <code>'Easy'</code> against the stored <code>'easy'</code>.</li>
+<li><b>Video thumbnails never render</b> — <code>cloudinary.image()</code> returns an HTML <code>&lt;img&gt;</code> tag, not a URL, so <code>poster={thumbnailUrl}</code> gets markup. Use <code>cloudinary.url()</code> (already commented out in the file).</li>
+<li><b><code>user.role</code> without optional chaining</b> in the Homepage navbar.</li>
+<li><b><code>/admin/update</code> card links to a route that does not exist</b> — the backend <code>PUT /problem/update/:id</code> has no UI.</li>
+</ul>
+
+<h3>Architecture &amp; scale</h3>
+<ul>
+<li><b>No pagination</b> — <code>getAllProblem</code> returns everything and the browser filters. Move filtering/paging to the server.</li>
+<li><b>Long-held HTTP connections while polling Judge0</b> — a submission blocks a request for seconds. Move judging to a background worker (BullMQ) and push results over WebSocket/SSE.</li>
+<li><b>No caching</b> — Redis is used only as a blocklist. The problem list is read-heavy and near-static; cache it.</li>
+<li><b>No tests at all</b> — no Jest/Supertest for the API, no React Testing Library. Usually the first thing a reviewer notices.</li>
+<li><b>No centralised error handler</b> — every controller repeats try/catch and formats its own errors. One Express error middleware plus a custom <code>AppError</code> class would remove that duplication.</li>
+<li><b>Duplicated middleware</b> — <code>userMiddleware</code> and <code>adminMiddleware</code> are ~90% identical; compose <code>authenticate</code> + <code>requireRole('admin')</code>.</li>
+<li><b>Duplicated Judge0 validation</b> in <code>createProblem</code> and <code>updateProblem</code> — extract <code>validateReferenceSolutions()</code>.</li>
+<li><b>Three names for one language</b> (<code>cpp</code>, <code>C++</code>, <code>c++</code>) patched with ad-hoc string rewrites. Normalise on one canonical identifier.</li>
+<li><b>Hardcoded URLs</b> — <code>localhost:3000</code>, <code>localhost:5173</code> and the Redis host are baked in. Move to env vars before deploying.</li>
+<li><b>No <code>lastName</code>/<code>age</code> collected anywhere</b> despite being in the schema; <code>getProfile</code> is commented out.</li>
+</ul>
+
+<h3>If you had one more week</h3>
+<ol>
+<li>Fix the five bugs above and add <code>httpOnly</code> cookies.</li>
+<li>Add server-side pagination and filtering to the problem list.</li>
+<li>Move judging to a BullMQ worker and stream results over WebSocket.</li>
+<li>Add Jest + Supertest coverage for auth and submission, the two riskiest paths.</li>
+<li>Build the missing "update problem" UI and a user profile page with solved stats.</li>
+<li>Dockerise and deploy: backend on Render, frontend on Vercel, with a real <code>VITE_API_URL</code>.</li>
+</ol>
+<h2 id="s10" class="pb">10. Interview Q&amp;A — 40 Questions</h2>
+
+<h3>A. Project &amp; architecture</h3>
+<div class="qa"><div class="q">1. Explain your project in two minutes.</div>
+<div class="a">Use the pitch from Section 1. Structure: what it does &rarr; frontend stack &rarr; backend stack &rarr; the two databases and why &rarr; Judge0 for execution &rarr; the two extra features (AI tutor, videos) &rarr; the admin panel with self-validating problem creation.</div></div>
+
+<div class="qa"><div class="q">2. Why did you use two databases?</div>
+<div class="a">Different access patterns. MongoDB is the durable store for documents with flexible, nested shapes — a problem has arrays of test cases and per-language code templates, which map naturally to documents. Redis holds one thing: the JWT blocklist, which is read on <b>every authenticated request</b> and needs microsecond O(1) lookups and automatic TTL expiry. Using the right tool for each job rather than forcing both into one.</div></div>
+
+<div class="qa"><div class="q">3. Why MongoDB rather than PostgreSQL?</div>
+<div class="a">The core entity is deeply nested and variable — visible and hidden test cases, three language templates, three reference solutions. In SQL that is four or five join tables; in MongoDB it is one document read with no joins. The relationships that do exist (user &rarr; submissions) are simple. That said, I would consider Postgres if I needed transactions across collections or heavy analytical queries — for example leaderboards and per-tag statistics — because MongoDB's aggregation for that is more awkward.</div></div>
+
+<div class="qa"><div class="q">4. Walk me through what happens when a user clicks Submit.</div>
+<div class="a">Use flow 7.4 verbatim. Emphasise: the submission row is written as <code>pending</code> <b>before</b> Judge0 is called, so an attempt is never lost; hidden test cases are used, never the visible ones; the batch is submitted in one call and polled until every <code>status_id &gt; 2</code>; runtime is summed and memory is the peak; then the row is updated with the verdict.</div></div>
+
+<div class="qa"><div class="q">5. Is your API RESTful?</div>
+<div class="a">Mostly. Resources are nouns, HTTP verbs are used correctly (GET/POST/PUT/DELETE), and status codes are meaningful — 201 for creation, 401 for auth failure, 404, 409 for a duplicate video. Where it deviates: some paths are verb-y (<code>/problem/getAllProblem</code> should just be <code>GET /problems</code>), and some errors return plain strings instead of JSON. I would normalise to plural noun resources and a consistent JSON error envelope.</div></div>
+
+<div class="qa"><div class="q">6. How would you scale this to 100,000 users?</div>
+<div class="a">Four layers. <b>Database:</b> pagination plus indexes on <code>difficulty</code> and <code>tags</code>; read replicas. <b>Caching:</b> Redis for the problem list and individual problems, which are read-heavy and rarely change. <b>Judging:</b> move it out of the request path into a BullMQ worker pool with Redis, returning a submission id immediately and pushing the verdict over WebSocket — right now a submission holds an HTTP connection open for seconds. <b>Infrastructure:</b> the API is stateless (all state is in Mongo/Redis), so I can run N instances behind a load balancer with no sticky sessions. I would also self-host Judge0 rather than depend on RapidAPI rate limits.</div></div>
+
+<div class="qa"><div class="q">7. What was the hardest part?</div>
+<div class="a">The Judge0 integration, because it is asynchronous. Submitting returns tokens, not results, so I had to build a polling loop with a correct termination condition — <code>status_id &gt; 2</code> means finished regardless of verdict. I also hit a subtle bug where my <code>waiting()</code> helper wrapped <code>setTimeout</code> without a Promise, so <code>await</code> did not pause and I was hammering the API. That taught me that <code>await</code> only works on thenables.</div></div>
+
+<h3>B. Authentication &amp; security</h3>
+<div class="qa"><div class="q">8. How does authentication work end to end?</div>
+<div class="a">On login the server verifies the password with <code>bcrypt.compare</code>, signs a JWT containing <code>_id</code>, <code>emailId</code> and <code>role</code> with a one-hour expiry, and sets it as a cookie. The browser then attaches that cookie automatically on every request because axios is configured with <code>withCredentials:true</code> and CORS allows credentials. On protected routes <code>userMiddleware</code> verifies the signature and expiry, confirms the user still exists, checks the Redis blocklist, and attaches the user document to <code>req.result</code>.</div></div>
+
+<div class="qa"><div class="q">9. JWT is stateless — so how does logout work?</div>
+<div class="a">That is exactly the problem. You cannot un-issue a signed token. So on logout I write the token into Redis as <code>token:&lt;jwt&gt; = "Blocked"</code> and <code>userMiddleware</code> checks that list on every request. The elegant part is <code>expireAt(key, payload.exp)</code>: the Redis TTL is set to the token's own expiry, so once the JWT would be rejected anyway the blocklist entry evicts itself. The blocklist is self-cleaning and can never grow unbounded.</div></div>
+
+<div class="qa"><div class="q">10. JWT vs sessions — why did you pick JWT?</div>
+<div class="a">Statelessness and horizontal scaling: any API instance can verify a token with just the secret, no shared session store and no sticky sessions. The trade-off is revocation, which sessions get for free — and I paid for that with the Redis blocklist, which is arguably a hybrid. If I were starting again for a single-server app, sessions would honestly be simpler.</div></div>
+
+<div class="qa"><div class="q">11. Cookie or localStorage for the token — and why?</div>
+<div class="a">Cookie. localStorage is readable by any JavaScript on the page, so one XSS flaw leaks the token permanently. A cookie can be marked <code>httpOnly</code>, which makes it invisible to JavaScript entirely. <b>Being honest: my implementation does not set <code>httpOnly</code>, <code>secure</code> or <code>sameSite</code> — that is the first thing I would fix.</b> With <code>sameSite:'strict'</code> you also get CSRF protection, which is the cookie approach's main downside handled.</div></div>
+
+<div class="qa"><div class="q">12. Can a user make themselves an admin?</div>
+<div class="a">Not through <code>/user/register</code> — the controller hardcodes <code>req.body.role = 'user'</code> after validation, so a posted <code>role</code> field is overwritten. That is a mass-assignment defence. They also cannot forge a token because they do not have <code>JWT_KEY</code>. The real weakness is different: <code>adminMiddleware</code> reads the role from the <b>token payload</b> instead of the freshly-loaded database record, so a demoted admin keeps admin access until their token expires.</div></div>
+
+<div class="qa"><div class="q">13. Why bcrypt and not SHA-256?</div>
+<div class="a">SHA-256 is designed to be <b>fast</b>, which is exactly wrong for passwords — an attacker with a leaked table can try billions of guesses per second on a GPU. bcrypt is deliberately slow via a configurable cost factor (10 here = 1024 rounds) and auto-generates a per-password salt embedded in the hash, which defeats rainbow tables and makes identical passwords hash differently.</div></div>
+
+<div class="qa"><div class="q">14. What is in your JWT payload, and is that safe?</div>
+<div class="a"><code>_id</code>, <code>emailId</code>, <code>role</code>, plus <code>iat</code> and <code>exp</code>. It is safe in the sense that nothing secret is there — a JWT payload is base64-<b>encoded</b>, not encrypted, so anyone holding the token can read it in jwt.io. The signature protects integrity, not confidentiality. That is why the password hash is never in there.</div></div>
+
+<div class="qa"><div class="q">15. How do you stop users seeing the hidden test cases?</div>
+<div class="a"><code>getProblemById</code> uses a Mongoose projection — <code>.select('_id title description difficulty tags visibleTestCases startCode referenceSolution')</code> — and <code>hiddenTestCases</code> is simply not in the list, so it never leaves the database layer. That projection is the security boundary of the whole judging system. <b>The flaw I would fix:</b> <code>referenceSolution</code> <i>is</i> in that list, so a user can read the answer in DevTools before solving.</div></div>
+
+<div class="qa"><div class="q">16. Someone bypasses your React admin check with DevTools. What happens?</div>
+<div class="a">Nothing useful. The client-side guard in <code>App.jsx</code> is purely UX — it hides buttons and redirects. Every admin endpoint is independently protected by <code>adminMiddleware</code> on the server, which verifies the token and the role. Client-side checks are convenience; server-side checks are security.</div></div>
+
+<h3>C. Backend</h3>
+<div class="qa"><div class="q">17. What is middleware in Express?</div>
+<div class="a">A function with signature <code>(req, res, next)</code> that sits in a chain between the request and the route handler. It can inspect or mutate <code>req</code>/<code>res</code>, end the request, or call <code>next()</code> to pass control on. Order matters — <code>cookieParser</code> must run before any auth middleware that reads <code>req.cookies</code>. My auth middleware also uses it to attach the loaded user to <code>req.result</code> so controllers do not each refetch it.</div></div>
+
+<div class="qa"><div class="q">18. Why <code>Promise.all</code> in the boot sequence?</div>
+<div class="a">To connect MongoDB and Redis <b>in parallel</b> rather than sequentially, roughly halving startup time, and to fail fast if either rejects. Crucially, <code>app.listen</code> only runs after both resolve, so the server never accepts traffic it cannot serve.</div></div>
+
+<div class="qa"><div class="q">19. What is <code>populate()</code> and what does it cost?</div>
+<div class="a">Mongoose's application-level join. <code>problemSolved</code> stores only ObjectIds; <code>populate</code> issues a <b>second query</b> to the problems collection and substitutes the real documents. The cost is that extra round trip — it is not a database-level join like SQL, so on large result sets it can become an N+1-style problem. I limit the damage with <code>select</code> so only four fields come back.</div></div>
+
+<div class="qa"><div class="q">20. Why the compound index on submissions?</div>
+<div class="a">The hot query is <code>Submission.find({userId, problemId})</code> for submission history. Without an index MongoDB does a collection scan; with <code>{userId:1, problemId:1}</code> it does an index scan straight to the matching range. Because of the prefix rule that index also covers queries on <code>userId</code> alone, but <b>not</b> <code>problemId</code> alone — if I needed that I would add a separate index.</div></div>
+
+<div class="qa"><div class="q">21. Explain the Mongoose hook in your user model.</div>
+<div class="a">A <code>post('findOneAndDelete')</code> hook that deletes every submission belonging to the removed user. MongoDB has no foreign keys or <code>ON DELETE CASCADE</code>, so cascade is an application concern. The important detail is that hooks are bound to specific query methods — <code>findByIdAndDelete</code> internally calls <code>findOneAndDelete</code> so the hook fires, but <code>deleteMany()</code> would bypass it entirely.</div></div>
+
+<div class="qa"><div class="q">22. Why <code>runValidators: true</code>?</div>
+<div class="a">Mongoose runs schema validators on <code>save()</code> but <b>skips them on update queries</b> by default, for historical reasons. Without that flag, <code>findByIdAndUpdate</code> would happily write <code>difficulty: "impossible"</code> straight past the enum. I pair it with <code>new: true</code> so the updated document is returned rather than the original.</div></div>
+
+<div class="qa"><div class="q">23. How do you run untrusted user code safely?</div>
+<div class="a">I do not run it myself — that is the whole point. Executing arbitrary user code in my Node process would be a remote code execution vulnerability. I delegate to <b>Judge0</b>, which runs each submission in an isolated container with CPU time, wall-clock and memory limits, and no network access. My server only ever handles strings.</div></div>
+
+<div class="qa"><div class="q">24. What is <code>status_id</code> and why <code>&gt; 2</code>?</div>
+<div class="a">Judge0's verdict code. 1 is In Queue and 2 is Processing — both non-terminal. Everything from 3 up is a finished state: 3 Accepted, 4 Wrong Answer, 5 TLE, 6 Compilation Error, 7–12 runtime errors. So <code>status_id &gt; 2</code> means "this submission has finished, whatever the outcome", which is the correct condition to stop polling, and <code>status_id === 3</code> means the test case passed.</div></div>
+
+<div class="qa"><div class="q">25. What happens if Judge0 is down?</div>
+<div class="a">Honestly, not enough. <code>submitBatch</code> catches the axios error, logs it and returns <code>undefined</code>, so the next line throws on <code>.map()</code> and the outer catch returns a 500. Meanwhile the submission row stays stuck at <code>pending</code>. What it <i>should</i> do: mark the submission as <code>error</code> with a clear message, add retries with exponential backoff, and a circuit breaker so I stop hammering a dead dependency.</div></div>
+
+<div class="qa"><div class="q">26. Why create the submission before judging it?</div>
+<div class="a">Write-ahead. Judging takes seconds and depends on a third party. Persisting the attempt as <code>pending</code> first means a crash, timeout or restart never loses the user's submission, and the row can be reconciled later. It is the same reasoning behind a job queue: record intent, then do the slow work, then record the outcome.</div></div>
+
+<div class="qa"><div class="q">27. Explain the Cloudinary signed upload.</div>
+<div class="a">The naive approach — upload to my Express server, which forwards to Cloudinary — doubles bandwidth and ties up a single-threaded Node process for minutes on a 100 MB file. Instead my server generates an HMAC signature over the upload parameters using the API secret and returns it to the browser. The browser uploads <b>directly</b> to Cloudinary with that signature; Cloudinary recomputes the HMAC and rejects anything that does not match. The secret never leaves my server, the file never touches it, and I still control the upload path because <code>public_id</code> and <code>timestamp</code> are part of the signed payload. Afterwards the client tells my server where it landed, and my server <b>verifies</b> with Cloudinary's Admin API before saving the metadata.</div></div>
+
+<div class="qa"><div class="q">28. Why is the AI limited to DSA?</div>
+<div class="a">A system instruction that injects the current problem's title, description, test cases and starter code, then sets explicit rules: act as a tutor, give hints without spoiling the solution, explain complexity, and politely refuse anything unrelated. That is prompt engineering as a product decision — it keeps the assistant useful and on-task, and stops the endpoint being abused as a free general-purpose chatbot on my API quota.</div></div>
+
+<h3>D. Frontend</h3>
+<div class="qa"><div class="q">29. Why Redux Toolkit, and why only for auth?</div>
+<div class="a">Auth is genuinely global — route guards, the navbar and multiple pages all read it, and prop-drilling it would be painful. RTK gives me <code>createAsyncThunk</code>, which auto-generates pending/fulfilled/rejected actions so every async call has a proper loading and error state, plus Immer so I can write mutable-looking reducers safely. Everything else — problem lists, submissions, editor state — is local to one screen, so it stays in <code>useState</code>. Putting server data in Redux for its own sake just adds boilerplate; these days I would reach for TanStack Query for that.</div></div>
+
+<div class="qa"><div class="q">30. What does <code>createAsyncThunk</code> actually do?</div>
+<div class="a">It takes a type prefix and an async function and generates three action types — <code>pending</code>, <code>fulfilled</code>, <code>rejected</code> — dispatching them automatically around the promise. I handle all three in <code>extraReducers</code>, which is what makes the loading spinner and error message reliable. <code>rejectWithValue</code> lets me control the error payload rather than getting a raw Error object.</div></div>
+
+<div class="qa"><div class="q">31. Why <code>extraReducers</code> and not <code>reducers</code>?</div>
+<div class="a"><code>reducers</code> defines actions the slice <i>owns</i> and generates creators for them. <code>extraReducers</code> responds to actions defined <i>elsewhere</i> — and thunk-generated actions are exactly that. My <code>reducers</code> object is empty because every state change in this slice is driven by an async thunk.</div></div>
+
+<div class="qa"><div class="q">32. You mutate state in your reducers. Isn't that illegal in Redux?</div>
+<div class="a">It looks illegal but is not. Redux Toolkit wraps every reducer in <b>Immer</b>, which hands you a draft proxy, records the mutations you perform on it, and produces a brand-new immutable state object. You get mutable ergonomics with immutable guarantees. Outside RTK, that same code would be a genuine bug.</div></div>
+
+<div class="qa"><div class="q">33. How does the app survive a page refresh?</div>
+<div class="a">Redux state is in memory and dies on refresh, but the cookie survives. On mount, <code>App.jsx</code> dispatches <code>checkAuth</code>, which calls <code>GET /user/check</code>; the middleware validates the cookie and the route returns the user, rehydrating Redux. Crucially, while that request is in flight <code>loading</code> is true and the app renders only a spinner — otherwise the first render would see <code>isAuthenticated:false</code> and briefly redirect a logged-in user to the signup page.</div></div>
+
+<div class="qa"><div class="q">34. Why React Hook Form instead of controlled inputs?</div>
+<div class="a">Performance and ergonomics. Controlled inputs re-render the component on every keystroke; RHF keeps values in refs so the field stays uncontrolled and typing causes <b>zero re-renders</b> — it only re-renders when validation state changes. It also handles nested field arrays cleanly, which I needed for the dynamic test-case rows in the admin panel.</div></div>
+
+<div class="qa"><div class="q">35. Explain <code>useFieldArray</code>.</div>
+<div class="a">It manages an array of form fields at runtime — <code>append</code>, <code>remove</code>, and a <code>fields</code> array to map over. In the admin panel it lets an admin add or delete any number of visible and hidden test cases. Registration uses a dotted path like <code>visibleTestCases.0.input</code>, which RHF assembles into a nested array on submit. I key each row by <code>field.id</code>, not the array index, because index keys corrupt state when a middle row is removed.</div></div>
+
+<div class="qa"><div class="q">36. Why is your API call inside <code>useEffect</code> and what does the dependency array do?</div>
+<div class="a">Fetching is a side effect, so it belongs in <code>useEffect</code> rather than the render body — rendering must stay pure. The dependency array controls re-runs: <code>[]</code> is once on mount, <code>[problemId]</code> re-fetches when the route parameter changes, and omitting it entirely runs after every render, which is almost always an infinite loop. A returned function is the cleanup — I use that in the video player to remove the <code>timeupdate</code> listener on unmount.</div></div>
+
+<div class="qa"><div class="q">37. When do you use <code>useRef</code> instead of <code>useState</code>?</div>
+<div class="a">When the value must persist across renders but changing it should <b>not</b> trigger one, or when I need a direct handle on a DOM node. I use it three times: the Monaco editor instance, the <code>&lt;video&gt;</code> element so I can call <code>.play()</code>/<code>.pause()</code>, and a sentinel div at the bottom of the chat that I <code>scrollIntoView</code> on new messages.</div></div>
+
+<div class="qa"><div class="q">38. Why does Vite start so much faster than CRA?</div>
+<div class="a">In development Vite does not bundle at all — it serves your source as native ES modules and lets the browser request them on demand, transpiling per file with esbuild (Go, very fast). Webpack/CRA builds the whole dependency graph before serving the first byte, so startup time grows with project size. For production Vite bundles with Rollup, where bundling is actually worth it.</div></div>
+
+<div class="qa"><div class="q">39. What is <code>StrictMode</code> and why did you see double API calls?</div>
+<div class="a">A development-only wrapper that intentionally double-invokes renders and effects to surface impure logic and missing cleanup functions. It is why an effect that fetches on mount can fire twice in dev. It does not happen in production builds, and the correct response is to make effects idempotent and add cleanup rather than to remove StrictMode.</div></div>
+
+<div class="qa"><div class="q">40. What would you do differently if you rebuilt this?</div>
+<div class="a">Four things. <b>TypeScript</b> across both sides — most of my bugs were shape mismatches, like three different spellings of "cpp", which types would have caught at compile time. <b>Judging as a background job</b> with BullMQ and WebSocket updates instead of holding an HTTP connection open. <b>Tests from day one</b>, at least Supertest coverage on auth and submission. And a <b>centralised error handler</b> with a custom error class, instead of repeating try/catch and ad-hoc string errors in every controller.</div></div>
+
+<h2 id="s11" class="pb">11. Last-Minute Cheat Sheet</h2>
+
+<h3>Numbers to remember</h3>
+<table>
+<tr><td><b>Backend port</b></td><td>3000</td><td><b>Frontend port</b></td><td>5173 (Vite)</td></tr>
+<tr><td><b>JWT expiry</b></td><td>3600 seconds (1 hr)</td><td><b>Cookie maxAge</b></td><td>3,600,000 ms</td></tr>
+<tr><td><b>bcrypt cost</b></td><td>10 rounds (2^10)</td><td><b>Max video</b></td><td>100 MB</td></tr>
+<tr><td><b>Judge0: C++</b></td><td>54</td><td><b>Java</b></td><td>62</td></tr>
+<tr><td><b>JavaScript</b></td><td>63</td><td><b>Accepted</b></td><td>status_id 3</td></tr>
+<tr><td><b>Models</b></td><td>4 (user, problem, submission, solutionVideo)</td><td><b>Routers</b></td><td>5</td></tr>
+</table>
+
+<h3>Ten one-liners that make you sound senior</h3>
+<ol>
+<li>"JWT is stateless, so logout is impossible by design — I solved it with a Redis blocklist whose TTL equals the token's own expiry, so it prunes itself."</li>
+<li>"Before a problem is saved, the server runs the admin's reference solution through Judge0 against every visible test case — you cannot publish an unsolvable problem."</li>
+<li>"Hidden test cases never leave the database; the Mongoose projection in <code>getProblemById</code> is the security boundary."</li>
+<li>"Videos upload directly from the browser to Cloudinary using a server-generated HMAC signature — the API secret never leaves my server and the file never touches it."</li>
+<li>"I create the submission row as <code>pending</code> before calling Judge0, so a timeout never loses the user's attempt."</li>
+<li>"Client-side role checks are UX; the real enforcement is <code>adminMiddleware</code> on the server."</li>
+<li>"The compound index on <code>{userId, problemId}</code> turns the submission-history collection scan into an index scan."</li>
+<li>"Redux holds only auth because that is the only genuinely global state; everything else is local to one screen."</li>
+<li>"<code>Promise.all</code> connects Mongo and Redis in parallel, and the server refuses to listen until both are up."</li>
+<li>"React Hook Form keeps values in refs, so typing causes zero re-renders."</li>
+</ol>
+
+<h3>Three bugs to volunteer before they find them</h3>
+<ol>
+<li><b>The <code>waiting()</code> helper never waits</b> — <code>setTimeout</code> is not a Promise, so <code>await</code> does not pause and the poll loop runs hot. Fix: <code>t =&gt; new Promise(r =&gt; setTimeout(r, t))</code>.</li>
+<li><b>Failed submissions still mark a problem solved</b> — the <code>problemSolved.push()</code> is not gated on <code>status === 'accepted'</code>.</li>
+<li><b>The auth cookie is missing <code>httpOnly</code></b>, so JavaScript can read it. Highest-impact one-line security fix in the codebase.</li>
+</ol>
+
+<h3>If you have 30 minutes left, do this</h3>
+<ol>
+<li>Read Section 1 aloud twice until the pitch is automatic.</li>
+<li>Re-read flow 7.4 (Submit) — it is the most likely deep-dive.</li>
+<li>Memorise the Judge0 status table and the three language ids.</li>
+<li>Learn the three bugs above well enough to state cause <i>and</i> fix.</li>
+<li>Skim Section 9's "if you had one more week" — it answers "what's next?" instantly.</li>
+</ol>
+
+<div class="note" style="margin-top:26px"><b>Final advice.</b> You built this — you know it better than anyone in the room. When you do not know something, say "I did not implement that, but here is how I would approach it" and then reason out loud. Interviewers hire for thinking, not recall. Good luck.</div>
+
+</body></html>
