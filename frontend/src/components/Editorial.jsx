@@ -3,7 +3,7 @@ import { Pause, Play } from 'lucide-react';
 
 const Editorial = ({ secureUrl, thumbnailUrl, duration }) => {
 
-const videoRef = useRef(null);
+  const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [isHovering, setIsHovering] = useState(false);

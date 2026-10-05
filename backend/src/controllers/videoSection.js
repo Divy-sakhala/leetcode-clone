@@ -78,7 +78,7 @@ const saveVideoMetadata = async (req, res) => {
       return res.status(409).json({ error: 'Video already exists' });
     }
 
-const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id,{resource_type: "video"})
+    const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id,{resource_type: "video"})
 
     const videoSolution = await SolutionVideo.create({
       problemId,
@@ -89,7 +89,7 @@ const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id,{resource_typ
       thumbnailUrl
     });
 
-res.status(201).json({
+    res.status(201).json({
       message: 'Video solution saved successfully',
       videoSolution: {
         id: videoSolution._id,
@@ -111,8 +111,8 @@ const deleteVideo = async (req, res) => {
     const userId = req.result._id;
 
     const video = await SolutionVideo.findOneAndDelete({problemId:problemId});
-
-if (!video) {
+    
+    if (!video) {
       return res.status(404).json({ error: 'Video not found' });
     }
 

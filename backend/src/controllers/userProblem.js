@@ -11,11 +11,11 @@ const createProblem = async (req,res)=>{
         referenceSolution, problemCreator
     } = req.body;
 
-try{
+    try{
        
       for(const {language,completeCode} of referenceSolution){
-
-const languageId = getLanguageById(language);
+         
+        const languageId = getLanguageById(language);
           
         const submissions = visibleTestCases.map((testcase)=>({
             source_code:completeCode,
@@ -24,13 +24,13 @@ const languageId = getLanguageById(language);
             expected_output: testcase.output
         }));
 
-const submitResult = await submitBatch(submissions);
+        const submitResult = await submitBatch(submissions);
 
         const resultToken = submitResult.map((value)=> value.token);
 
-const testResult = await submitToken(resultToken);
+       const testResult = await submitToken(resultToken);
 
-console.log(testResult);
+       console.log(testResult);
 
        for(const test of testResult){
         if(test.status_id!=3){
@@ -40,7 +40,7 @@ console.log(testResult);
 
       }
 
-const userProblem =  await Problem.create({
+    const userProblem =  await Problem.create({
         ...req.body,
         problemCreator: req.result._id
       });
@@ -73,8 +73,8 @@ const updateProblem = async (req,res)=>{
     }
       
     for(const {language,completeCode} of referenceSolution){
-
-const languageId = getLanguageById(language);
+         
+      const languageId = getLanguageById(language);
         
       const submissions = visibleTestCases.map((testcase)=>({
           source_code:completeCode,
@@ -83,13 +83,13 @@ const languageId = getLanguageById(language);
           expected_output: testcase.output
       }));
 
-const submitResult = await submitBatch(submissions);
+      const submitResult = await submitBatch(submissions);
 
       const resultToken = submitResult.map((value)=> value.token);
 
-const testResult = await submitToken(resultToken);
+     const testResult = await submitToken(resultToken);
 
-for(const test of testResult){
+     for(const test of testResult){
       if(test.status_id!=3){
        return res.status(400).send("Error Occured");
       }
@@ -97,7 +97,7 @@ for(const test of testResult){
 
     }
 
-const newProblem = await Problem.findByIdAndUpdate(id , {...req.body}, {runValidators:true, new:true});
+  const newProblem = await Problem.findByIdAndUpdate(id , {...req.body}, {runValidators:true, new:true});
    
   res.status(200).send(newProblem);
   }
@@ -119,7 +119,7 @@ const deleteProblem = async(req,res)=>{
    if(!deletedProblem)
     return res.status(404).send("Problem is Missing");
 
-res.status(200).send("Successfully Deleted");
+   res.status(200).send("Successfully Deleted");
   }
   catch(err){
      
@@ -136,8 +136,8 @@ const getProblemById = async(req,res)=>{
       return res.status(400).send("ID is Missing");
 
     const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution ');
-
-if(!getProblem)
+   
+   if(!getProblem)
     return res.status(404).send("Problem is Missing");
 
    const videos = await SolutionVideo.findOne({problemId:id});
@@ -171,7 +171,7 @@ const getAllProblem = async(req,res)=>{
    if(getProblem.length==0)
     return res.status(404).send("Problem is Missing");
 
-res.status(200).send(getProblem);
+   res.status(200).send(getProblem);
   }
   catch(err){
     res.status(500).send("Error: "+err);
@@ -218,4 +218,3 @@ const submittedProblem = async(req,res)=>{
 }
 
 module.exports = {createProblem,updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblembyUser,submittedProblem};
-

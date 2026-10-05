@@ -38,7 +38,7 @@ function Login() {
         <div className="card-body">
           <h2 className="card-title justify-center text-3xl mb-6">Leetcode</h2>
 
-<form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Email</span>

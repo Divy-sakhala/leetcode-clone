@@ -14,8 +14,8 @@ const submitCode = async (req,res)=>{
 
       if(!userId||!code||!problemId||!language)
         return res.status(400).send("Some field missing");
-
-if(language==='cpp')
+      
+      if(language==='cpp')
         language='c++'
       
       console.log(language);
@@ -31,7 +31,7 @@ if(language==='cpp')
           testCasesTotal:problem.hiddenTestCases.length
      })
 
-const languageId = getLanguageById(language);
+    const languageId = getLanguageById(language);
    
     const submissions = problem.hiddenTestCases.map((testcase)=>({
         source_code:code,
@@ -40,19 +40,19 @@ const languageId = getLanguageById(language);
         expected_output: testcase.output
     }));
 
-const submitResult = await submitBatch(submissions);
+    const submitResult = await submitBatch(submissions);
     
     const resultToken = submitResult.map((value)=> value.token);
 
     const testResult = await submitToken(resultToken);
-
-let testCasesPassed = 0;
+    
+    let testCasesPassed = 0;
     let runtime = 0;
     let memory = 0;
     let status = 'accepted';
     let errorMessage = null;
 
-for(const test of testResult){
+    for(const test of testResult){
         if(test.status_id==3){
            testCasesPassed++;
            runtime = runtime+parseFloat(test.time)
@@ -69,15 +69,15 @@ for(const test of testResult){
         }
     }
 
-submittedResult.status   = status;
+    submittedResult.status   = status;
     submittedResult.testCasesPassed = testCasesPassed;
     submittedResult.errorMessage = errorMessage;
     submittedResult.runtime = runtime;
     submittedResult.memory = memory;
 
     await submittedResult.save();
-
-if(!req.result.problemSolved.includes(problemId)){
+    
+    if(!req.result.problemSolved.includes(problemId)){
       req.result.problemSolved.push(problemId);
       await req.result.save();
     }
@@ -112,7 +112,7 @@ const runCode = async(req,res)=>{
       if(language==='cpp')
         language='c++'
 
-const languageId = getLanguageById(language);
+   const languageId = getLanguageById(language);
 
    const submissions = problem.visibleTestCases.map((testcase)=>({
        source_code:code,
@@ -121,7 +121,7 @@ const languageId = getLanguageById(language);
        expected_output: testcase.output
    }));
 
-const submitResult = await submitBatch(submissions);
+   const submitResult = await submitBatch(submissions);
    
    const resultToken = submitResult.map((value)=> value.token);
 
@@ -150,7 +150,7 @@ const submitResult = await submitBatch(submissions);
         }
     }
 
-res.status(201).json({
+   res.status(201).json({
     success:status,
     testCases: testResult,
     runtime,
@@ -164,4 +164,3 @@ res.status(201).json({
 }
 
 module.exports = {submitCode,runCode};
-

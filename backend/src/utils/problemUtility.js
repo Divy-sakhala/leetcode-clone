@@ -8,7 +8,7 @@ const getLanguageById = (lang)=>{
         "javascript":63
     }
 
-return language[lang.toLowerCase()];
+    return language[lang.toLowerCase()];
 }
 
 const submitBatch = async (submissions)=>{
@@ -73,7 +73,7 @@ async function fetchData() {
 	}
 }
 
-while(true){
+ while(true){
 
  const result =  await fetchData();
 
@@ -82,10 +82,9 @@ while(true){
   if(IsResultObtained)
     return result.submissions;
 
-await waiting(1000);
+  await waiting(1000);
 }
 
 }
 
 module.exports = {getLanguageById,submitBatch,submitToken};
-

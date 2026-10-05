@@ -26,4 +26,3 @@ authRouter.get('/check',userMiddleware,(req,res)=>{
 })
 
 module.exports = authRouter;
-

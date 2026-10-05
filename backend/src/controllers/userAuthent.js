@@ -77,7 +77,7 @@ const logout = async(req,res)=>{
         const {token} = req.cookies;
         const payload = jwt.decode(token);
 
-await redisClient.set(`token:${token}`,'Blocked');
+        await redisClient.set(`token:${token}`,'Blocked');
         await redisClient.expireAt(`token:${token}`,payload.exp);
 
     res.cookie("token",null,{expires: new Date(Date.now())});
@@ -113,7 +113,7 @@ const deleteProfile = async(req,res)=>{
       
     await User.findByIdAndDelete(userId);
 
-res.status(200).send("Deleted Successfully");
+    res.status(200).send("Deleted Successfully");
 
     }
     catch(err){

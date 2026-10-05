@@ -24,14 +24,14 @@ const ProblemPage = () => {
   const editorRef = useRef(null);
   let {problemId}  = useParams();
 
-useEffect(() => {
+ useEffect(() => {
     const fetchProblem = async () => {
       setLoading(true);
       try {
         
         const response = await axiosClient.get(`/problem/problemById/${problemId}`);
-
-const initialCode = response.data.startCode.find(sc => sc.language === langMap[selectedLanguage]).initialCode;
+       
+        const initialCode = response.data.startCode.find(sc => sc.language === langMap[selectedLanguage]).initialCode;
 
         setProblem(response.data);
         
@@ -175,7 +175,7 @@ const initialCode = response.data.startCode.find(sc => sc.language === langMap[s
             ChatAI
           </button>
 
-</div>
+        </div>
 
         <div className="flex-1 overflow-y-auto p-6">
           {problem && (
