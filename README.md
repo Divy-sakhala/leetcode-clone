@@ -38,6 +38,13 @@ npm install
 npm run dev
 ```
 
+Backend tests (validation, auth middleware, error mapping, the Judge0 client with a mocked API):
+
+```bash
+cd backend
+npm test
+```
+
 To make yourself an admin, set `role: "admin"` on your user document in MongoDB. After that you can create other admins from the app.
 
 ## Known limitations
